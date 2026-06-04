@@ -3,42 +3,34 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import FormInput from "../components/FormInput";
 
 function RegisterPage() {
-  const [username, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [city, setCity] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+      username: "",
+      firstName: "",
+      lastName: "",
+      city: "",
+      email: "",
+      password: "",
+    });
+
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!email || !password || !username || !firstName || !lastName || !city) {
+    if (!formData.email || !formData.password || !formData.username || !formData.firstName || !formData.lastName || !formData.city) {
         alert("Please fill all the fields");
         return;
     }
 
-    const userData = {
-      username,
-      firstName,
-      lastName,
-      city,
-      email,
-      password,
-    };
-
     try {
-        const data = await registerUser(userData);
-
+        const data = await registerUser(formData);
         console.log(data);
         alert("Registration successful");
-
         navigate("/login");
-
     } catch (error) {
         console.log(error);
         alert("Registration failed");
@@ -57,80 +49,60 @@ function RegisterPage() {
         <h1 className="text-center mb-5 text-2xl font-bold font-display">Register</h1>
 
         <form onSubmit={handleRegister}>
-          <label className="block mb-2">Username:</label>
-          <div className="relative mb-[15px]">
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
-              className="w-full p-2.5 pr-[35px] mb-[15px] border border-[#b4b4b4] bg-movie-surface text-movie-text-main rounded box-border focus:outline-none placeholder:text-movie-text-sec"
-            />  
-          </div>
+          <FormInput
+            label="Username:"
+            type="text"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            placeholder="Enter your username"
+          />
+          <FormInput
+            label="First Name:"
+            type="text"
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            placeholder="Enter your first name"
+          />
+          <FormInput
+            label="Last Name:"
+            type="text"
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            placeholder="Enter your last name"
+          />
+          <FormInput
+            label="City:"
+            type="text"
+            value={formData.city}
+            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+            placeholder="Enter your city"
+          />
+          <FormInput
+            label="Email:"
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="Enter your email"
+          />
 
-          <label className="block mb-2">First Name:</label>
-          <div className="relative mb-[15px]">
-            <input
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="First Name"
-              className="w-full p-2.5 pr-[35px] mb-[15px] border border-[#b4b4b4] bg-movie-surface text-movie-text-main rounded box-border focus:outline-none placeholder:text-movie-text-sec"
-            />
-          </div>
-
-          <label className="block mb-2">Last Name:</label>
-          <div className="relative mb-[15px]">
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last Name"
-              className="w-full p-2.5 pr-[35px] mb-[15px] border border-[#b4b4b4] bg-movie-surface text-movie-text-main rounded box-border focus:outline-none placeholder:text-movie-text-sec"
-            />
-          </div>
-
-          <label className="block mb-2">City:</label>
-          <div className="relative mb-[15px]">
-            <input
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="City"
-              className="w-full p-2.5 pr-[35px] mb-[15px] border border-[#b4b4b4] bg-movie-surface text-movie-text-main rounded box-border focus:outline-none placeholder:text-movie-text-sec"
-            />
-          </div>
-
-          <label className="block mb-2">Email:</label>
-          <div className="relative mb-[15px]">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email Address"
-              className="w-full p-2.5 pr-[35px] mb-[15px] border border-[#b4b4b4] bg-movie-surface text-movie-text-main rounded box-border focus:outline-none placeholder:text-movie-text-sec"
-            />
-          </div>
-
-          <label className="block mb-2">Password:</label>
-          <div className="relative mb-[15px]">
-            <input
+          <div className="relative">
+            <FormInput
+              label="Password:"
               type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="w-full p-2.5 pr-10 bg-movie-surface text-white border border-[#b4b4b4] rounded box-border focus:outline-none placeholder:text-movie-text-sec"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Enter your password"
             />
 
             <span
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-movie-text-sec"
+              className="absolute right-[12px] bottom-[14px] cursor-pointer text-movie-text-sec"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
-          
-          <button className="px-5 py-2.5 bg-movie-accent text-movie-text-main rounded mr-2.5 cursor-pointer hover:bg-[#1b97b2] transition-colors mt-2.5 block" type="submit">
+
+          <button className="w-full px-5 py-2.5 bg-movie-accent text-movie-text-main rounded mt-4 cursor-pointer hover:bg-[#1b97b2] transition-colors" type="submit">
             Create Account
           </button>
 
@@ -147,5 +119,6 @@ function RegisterPage() {
     </div>
   );
 }
+
 
 export default RegisterPage;
