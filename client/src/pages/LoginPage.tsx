@@ -7,7 +7,7 @@ import FormInput from "../components/FormInput";
 
 function LoginPage() {
   const [formData, setFormData] = useState({
-    email: "",
+    usernameOrEmail: "",
     password: "",
   });
 
@@ -17,7 +17,7 @@ function LoginPage() {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password) {
+    if (!formData.usernameOrEmail || !formData.password) {
         alert("Please fill all the fields");
         return;
     }
@@ -35,7 +35,7 @@ function LoginPage() {
             return;
         }
         const savedUser = JSON.parse(savedUserString);
-        if (formData.email === savedUser.email && formData.password === savedUser.password) {   // email: user@gmail.com, password: user12345
+        if ((formData.usernameOrEmail === savedUser.email || formData.usernameOrEmail === savedUser.username) && formData.password === savedUser.password) {   // email: user@gmail.com, password: user12345
           localStorage.setItem("token", "fake-demo-token-12345");
           localStorage.setItem("user", JSON.stringify(savedUser));
           alert("Login successful");
@@ -59,11 +59,11 @@ function LoginPage() {
         <form onSubmit={handleLogin}>
           <FormInput
             icon={<FaUser />}
-            label="Email:"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="Email Address"
+            label="Email / Username:"
+            type="text"
+            value={formData.usernameOrEmail}
+            onChange={(e) => setFormData({ ...formData, usernameOrEmail: e.target.value })}
+            placeholder="Email Address or Username"
           />
           <div className="relative">
             <FormInput
