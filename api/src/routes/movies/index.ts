@@ -3,6 +3,6 @@ import controller from './controller'
 
 const router: Router = Router()
 
-router.post('/list', controller.index)
+router.get('/list', controller.index)
 
 export default router
