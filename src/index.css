@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@theme {
+  --color-movie-bg: #14181c;
+  --color-movie-surface: #1c252d;
+  --color-movie-accent: #14b2d6;
+  --color-movie-text-main: #ffffff;
+  --color-movie-text-sec: #99aab5;
+  --color-movie-highlight: #ffc107;
+  --color-movie-border: #14b2d633;
+  --font-display: "Inter", sans-serif; /* Για τίτλους */
+  --font-body: "Roboto", sans-serif; /* Για κείμενα */
+}
+
+@layer base {
+  /* Το default style για όλο το app */
+  body {
+    @apply bg-movie-bg text-movie-text-main antialiased;
+  }
+}
+
+/* Movie cards */
+.movie-card {
+  background-color: #1c252d;
+  width: 230px;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(20, 178, 214, 0.6);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.movie-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(20, 178, 214, 0.3);
+}
+
+.movie-poster {
+  height: 120px;
+  background: linear-gradient(135deg, #12344a, #14b2d6);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  margin-bottom: 10px;
+  height: 150px;
+}
+
+.movie-info h3 {
+  color: white;
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+
+.movie-meta {
+  color: #99aab5;
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.movie-rating {
+  color: #c1cdd6;
+  font-size: 15px;
+  margin: 0;
+}
