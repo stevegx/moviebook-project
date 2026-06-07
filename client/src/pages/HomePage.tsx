@@ -1,16 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  keepWatchingMovies,
+  trendingMovies,
+  topRatedMovies,
+} from "../data/movies";
+import HeroBanner from "../components/HeroBanner";
+import MovieSection from "../components/MovieSection";
 
 function HomePage() {
   const navigate = useNavigate();
-
   const user = JSON.parse(localStorage.getItem("user") || "null");
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
-  };
 
   {/* αν δεν είναι συνδεδεμένος */}
   if (!user) {
@@ -37,15 +37,34 @@ function HomePage() {
   {/* αν είναι συνδεδεμένος */}
   return (
     <div className="min-h-screen bg-movie-bg text-movie-text-main font-body">
-      <main className="max-w-4xl mx-auto mt-16 p-6 text-center">
-        <div className="bg-movie-surface rounded-xl border border-gray-800 p-8 shadow-md">
-          <h2 className="text-4xl font-bold font-display mb-4">
+      <main className="w-full px-16 py-14">
+        
+        {/* Search Bar */}
+        <div className="flex justify-center mb-10">
+          <input
+            type="text"
+            placeholder="Search movies..."
+            className="w-full max-w-3xl h-14 px-5 bg-movie-surface text-white border-2 border-movie-accent rounded-xl text-center outline-none focus:ring-2 focus:ring-movie-accent/50 transition-all"
+          />
+        </div>
+
+        <div className="bg-movie-surface rounded-xl border border-gray-800 p-8 shadow-md text-center mb-10 max-w-3xl mx-auto">
+          <h2 className="text-4xl font-bold font-display mb-2">
             Welcome back, <span className="text-movie-accent">{user.username || user.email}</span>!
           </h2>
-          <p className="text-movie-text-sec text-lg max-w-md mx-auto">
+          <p className="text-movie-text-sec text-lg m-0">
             Explore your favorite movies, manage your watchlist, and see what's trending today.
           </p>
         </div>
+
+        <HeroBanner />
+        
+        <div className="space-y-10 mt-10">
+          <MovieSection title="Keep Watching" movies={keepWatchingMovies} />
+          <MovieSection title="Trending Movies" movies={trendingMovies} />
+          <MovieSection title="Top Rated" movies={topRatedMovies} />
+        </div>
+
       </main>
     </div>
   );
