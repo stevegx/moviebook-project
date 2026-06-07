@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import ProfPic from "../../Assets/ProfPic.png";
 import MoviePoster from "../../Assets/MoviePoster3.jpg";
 import { Review } from "../../pages/FeedPage";
-
+import CommentDialog from "./CommentDialog";
 interface PostCardProps {
   review: Review;
 }
 
 export default function PostCard({ review }: PostCardProps) {
   const [like, setLike] = useState<number>(0);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     <section className="flex flex-col gap-4 bg-movie-surface/40 p-5 rounded-xl border border-movie-border/60 max-w-2xl w-full">
       {/* TOP ROW */}
@@ -88,9 +88,18 @@ export default function PostCard({ review }: PostCardProps) {
             Liked
           </button>
         )}
-        <button className="flex  w-24 h-9 px-1 py-1 items-center gap-1.5 hover:text-white bg-movie-border/40 hover:bg-movie-accent/20  rounded-lg cursor-pointer transition-all duration-300 font-medium">
+
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex  w-24 h-9 px-1 py-1 items-center gap-1.5 hover:text-white bg-movie-border/40 hover:bg-movie-accent/20  rounded-lg cursor-pointer transition-all duration-300 font-medium"
+        >
           💬 Comment
         </button>
+        <CommentDialog
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          review={review}
+        />
       </div>
     </section>
   );
