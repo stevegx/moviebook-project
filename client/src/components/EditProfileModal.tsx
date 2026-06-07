@@ -10,7 +10,7 @@ interface UserProfile {
   profileImage?: string; 
 }
 
-function EditProfileModal({ isOpen, onClose, user, onSave }: { isOpen: boolean; onClose: () => void; user: UserProfile ; onSave: (updatedUser: UserProfile) => void }) {
+function EditProfileModal({ isOpen, onClose, user, onSave }: { isOpen: boolean; onClose: () => void; user: UserProfile | null; onSave: (updatedUser: UserProfile) => void }) {
   const [editForm, setEditForm] = useState({
     firstName: "",
     lastName: "",
