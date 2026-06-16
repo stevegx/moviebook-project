@@ -23,9 +23,9 @@ const register = z.object({
 export type LoginInput = z.infer<typeof login>['body']
 export type RegisterInput = z.infer<typeof register>['body']
 
-const schemas = {
+const schema = {
   login,
   register,
 }
 
-export default schemas
+export default schema
