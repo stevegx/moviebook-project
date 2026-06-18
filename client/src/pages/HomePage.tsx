@@ -1,108 +1,96 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  keepWatchingMovies,
-  trendingMovies,
-  topRatedMovies,
-} from "../data/movies";
+import React, { useState, useEffect, use } from "react";
 import HeroBanner from "../components/HeroBanner";
 import MovieSection from "../components/MovieSection";
 import { user } from "../services/authService"
 
-function HomePage() {
-  const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState<any | null>(() => {
-    const saved = localStorage.getItem("currentUser");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.user || parsed;
-    }
-    return null;
-  });
+const safeFetchMovies = (url: string) => 
+  fetch(url)
+    .then(res => {
+      if (!res.ok) return { results: [] }; 
+      return res.json();
+    })
+    .catch(() => ({ results: [] })); 
+
+const popularPromise = safeFetchMovies("http://localhost:8000/api/movies/list?type=popular");
+const topRatedPromise = safeFetchMovies("http://localhost:8000/api/movies/list?type=top-rated");
+const userPromise = user().catch(() => null);
+
+function HomePage({searchQuery} : {searchQuery?: string}) {
+  const currentUserData = use(userPromise);
+  const popularData = use(popularPromise);
+  const topRatedData = use(topRatedPromise);
+
+  const currentUser = (currentUserData?.user || currentUserData) ?? null;
+  const trending = popularData.results || [];
+  const topRated = topRatedData.results || [];
+
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-    
-    const verifyUser = async () => {
+    if (!searchQuery || searchQuery.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
       try {
-        const u = await user();
-        if (mounted) {
-          const freshUser = u?.user || u;
-          setCurrentUser(freshUser ?? null);
-          if (freshUser) {
-            localStorage.setItem("currentUser", JSON.stringify(freshUser));
-          }
-        }
-      } catch (e) {
-        if (mounted) setCurrentUser(null);
+        setSearchLoading(true);
+        const response = await fetch(`http://localhost:8000/api/movies/search?query=${searchQuery}`);
+        const data = await response.json();
+        setSearchResults(data.results || []);
+      } catch (err) {
+        console.error("Search error", err);
+      } finally {
+        setSearchLoading(false);
       }
-    };
+    }, 400);
 
-    verifyUser();
-    
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
+  const isSearching = searchQuery && searchQuery.trim() !== "";
 
-  // αν δεν είναι συνδεδεμένος
-  if (!currentUser) {
-    return (
-      <div className="min-h-[80vh] flex flex-col justify-center items-center text-center p-6 bg-movie-bg text-movie-text-main">
-        <h2 className="text-5xl font-bold font-display mb-4">
-          Welcome to <span className="text-movie-accent">MovieBook</span>
-        </h2>
-        <p className="text-movie-text-sec text-xl max-w-xl mx-auto mb-8">
-          The ultimate platform for movie lovers. Discover trending films,
-          create your personal watchlists, and share reviews with your friends.
-        </p>
-        <div className="flex space-x-4">
-          <button
-            onClick={() => navigate("/login")}
-            className="px-6 py-3 bg-movie-accent text-movie-text-main font-bold rounded-lg hover:bg-[#1b97b2] transition-colors cursor-pointer"
-          >
-            Get Started
-          </button>
-          <button
-            onClick={() => navigate("/register")}
-            className="px-6 py-3 border border-gray-600 rounded-lg hover:bg-movie-surface transition-colors cursor-pointer"
-          >
-            Create an Account
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  {
-    /* αν είναι συνδεδεμένος */
-  }
   return (
     <div className="min-h-screen bg-movie-bg text-movie-text-main font-body">
       <main className="w-full px-16 py-14">
 
-        <div className="bg-movie-surface rounded-xl border border-gray-800 p-8 shadow-md text-center mb-10 max-w-3xl mx-auto">
-          <h2 className="text-4xl font-bold font-display mb-2">
-            Welcome back,{" "}
-            <span className="text-movie-accent">
-              {currentUser.name || currentUser.username || currentUser?.email}
-            </span>
-            !
+      {isSearching ? (
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold font-display">
+            Search Results for: <span className="text-movie-accent">"{searchQuery}"</span>
           </h2>
-          <p className="text-movie-text-sec text-lg m-0">
-            Explore your favorite movies, manage your watchlist, and see what's
-            trending today.
-          </p>
+          {searchLoading ? (
+            <p className="text-movie-accent animate-pulse">Searching...</p>
+          ) : (
+            <MovieSection title="" movies={searchResults} isLoggedIn={true} />
+          )}
         </div>
+      ) : (
+        <>
+          <div className="bg-movie-surface rounded-xl border border-gray-800 p-8 shadow-md text-center mb-10 max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold font-display mb-2">
+              Welcome back,{" "}
+              <span className="text-movie-accent">
+                {currentUser.name || currentUser?.username || currentUser?.email}
+              </span>
+              !
+            </h2>
+            <p className="text-movie-text-sec text-lg m-0">
+              Explore your favorite movies, manage your watchlist, and see what's
+              trending today.
+            </p>
+          </div>
 
-        <HeroBanner />
+          <HeroBanner />
 
-        <div className="space-y-10 mt-10">
-          <MovieSection title="Keep Watching" movies={keepWatchingMovies} />
-          <MovieSection title="Trending Movies" movies={trendingMovies} />
-          <MovieSection title="Top Rated" movies={topRatedMovies} />
-        </div>
+          <div className="space-y-10 mt-10">
+            {/*<MovieSection title="Keep Watching" movies={keepWatching} isLoggedIn={true} /> */}
+            <MovieSection title="Trending Movies" movies={trending} isLoggedIn={true} />
+            <MovieSection title="Top Rated" movies={topRated} isLoggedIn={true} />
+          </div>
+        </>
+      )}
       </main>
     </div>
   );

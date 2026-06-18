@@ -4,67 +4,45 @@ import { FaUserCircle, FaSignOutAlt, FaCog, FaHeart, FaList, FaStar, FaUser } fr
 import { user, logout } from "../services/authService";
 import LogoutButton from "./LogoutButton";
 
-function Navbar() {
+interface NavbarProps {
+  isLoggedIn: boolean;
+  currentUser: any | null;
+  onLogout: () => void;
+  searchQuery: string;
+  setSearchQuery: (val: string) => void;
+}
+
+
+function Navbar({isLoggedIn, currentUser, onLogout, searchQuery, setSearchQuery}: NavbarProps) {
     const navigate = useNavigate();
-    const location = useLocation();
-    const [currentUser, setCurrentUser] = useState<any | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        let mounted = true;
-        
-        (async () => {
-            try {
-                const u = await user();
-                if (mounted) setCurrentUser(u ?? null);
-            } catch (e) {
-                if (mounted) setCurrentUser(null);
-            }
-        })();
-
-        return () => {
-            mounted = false;
-        };
-    }, [location.pathname]);
-
-    const handleLogout = async () => {
-        try {
-            setIsDropdownOpen(false);
-            await logout();
-            setCurrentUser(null);
-            navigate("/");
-        } catch (error) {
-            console.log(error);
-            alert("Logout failed");
+      const handleClickOutside = (event: MouseEvent) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+          setIsDropdownOpen(false);
         }
-    };
+      };
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsDropdownOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
     }, []);
 
     return (
     <nav className="w-full bg-movie-surface border-b border-gray-800 px-6 py-4 flex justify-between items-center shadow-lg">
       <h1 
         className="text-2xl font-bold font-display text-movie-accent tracking-wide cursor-pointer select-none" 
-        onClick={() => { setIsDropdownOpen(false);navigate(currentUser ? "/home" : "/")}}
+        onClick={() => { setIsDropdownOpen(false); navigate(isLoggedIn ? "/home" : "/")}}
         >
-            MovieBook
+          MovieBook
       </h1>
       
       <div className="flex items-center">
         {/* αν δεν είναι συνδεδεμένος */}
-        {!currentUser && (
+        {!isLoggedIn && (
           <>
             <button onClick={() => { setIsDropdownOpen(false); navigate("/login")}} className="px-4 py-2 text-sm text-movie-text-main hover:text-movie-accent transition-colors cursor-pointer">
               Login
@@ -76,13 +54,15 @@ function Navbar() {
         )}
 
         {/* αν είναι συνδεδεμένος */}
-        {currentUser && (
+        {isLoggedIn && (
           <>
             {/* Search Bar */}
             <div className=" px-4 flex justify-center ">
               <input
                 type="text"
                 placeholder="Search movies..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full max-w-3xl h-14 px-5 bg-movie-surface text-white border-2 border-movie-accent rounded-xl text-center outline-none focus:ring-2 focus:ring-movie-accent/50 transition-all"
               />
             </div>
@@ -95,10 +75,10 @@ function Navbar() {
               Feed
             </button>
 
-            <LogoutButton />
+            <LogoutButton onLogoutSuccess={onLogout}/>
 
             <div className="relative" ref={dropdownRef}>
-            {/* Η εικόνα του χρήστη */}
+            {/* User's avatar */}
             <button 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 text-movie-accent hover:ring-2 hover:ring-movie-accent transition-all cursor-pointer overflow-hidden focus:outline-none"
@@ -137,7 +117,6 @@ function Navbar() {
                   <FaCog className="text-gray-500 w-4" /> <span>Settings</span>
                 </button>
                                 
-                
               </div>
             )}
           </div>
@@ -145,8 +124,6 @@ function Navbar() {
         )}
       </div>
 
-      
-      
     </nav>
   );
 

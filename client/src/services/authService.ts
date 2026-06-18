@@ -48,13 +48,18 @@ export const login = async (credentials: {
   }
 };
 
-export const user = async () => {
+export const user = async (updatedData?: {name: string; username: string; email: string}) => {
   try {
+    const method = updatedData ? "POST" : "GET";
+
     const response = await fetch(`${API_URL}/me`, {
+      method: method,
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
+      body: updatedData ? JSON.stringify(updatedData) : undefined,
     });
 
     const data = await response.json();

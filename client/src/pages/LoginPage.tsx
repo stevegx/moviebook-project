@@ -12,30 +12,31 @@ function LoginPage() {
 
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMessage("");
 
     if (!formData.email || !formData.password) {
-        alert("Please fill all the fields");
+        setErrorMessage("Please fill in all the fields.");
         return;
     }
 
     try {
       await login(formData);
-
       navigate("/");
       
     } catch (error) {
         console.log(error);
-        alert("Login failed");
+        setErrorMessage("Invalid email or password.");
     }
   };
 
   return (
     <div className="min-h-[85vh] flex flex-col justify-center items-center py-10">
       <div className="w-[400px] bg-movie-surface rounded-lg border border-[#b4b4b4] p-[30px] shadow-xl">
-        <h1 className="text-center mb-6 text-2xl font-bold font-display text-movie-text-main">Welcome Back</h1>
+        <h1 className="text-center mb-6 text-2xl font-bold font-display text-movie-text-main">Welcome Back</h1>    
 
         <form onSubmit={handleLogin}>
           <FormInput
@@ -63,6 +64,12 @@ function LoginPage() {
               {showPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
+
+          {errorMessage && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 text-red-200 text-sm rounded text-center">
+            {errorMessage}
+          </div>
+          )}
 
           <div className="flex justify-between items-center mt-6">
             <button className="px-6 py-2.5 bg-movie-accent text-movie-text-main rounded cursor-pointer hover:bg-[#1b97b2] transition-colors font-bold" type="submit">

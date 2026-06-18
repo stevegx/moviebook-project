@@ -80,6 +80,39 @@ class Controller {
   async me(req: Request, res: Response) {
     res.json(req.user)
   }
+
+  async updateMe(req: Request, res: Response) {
+    const userId = (req.user as any)?._id || (req.user as any)?.id
+
+    if (!userId) {
+      return res.status(401).json({
+          message:'Unauthorized'
+        })
+    }
+
+    const { name, username, email } = req.body
+    const updatedUser = await schema.User.findByIdAndUpdate(
+      userId,
+      { name,username,email },
+      { new: true, runValidators: true }
+    ).lean()
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: 'User not found'
+      })
+    }
+
+    return res.status(200).json({
+      id: updatedUser._id.toString(),
+      name: updatedUser.name,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      createdAt: updatedUser.createdAt,
+      updatedAt: updatedUser.updatedAt,
+    })
+
+  }
 }
 
 export default new Controller()

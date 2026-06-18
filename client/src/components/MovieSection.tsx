@@ -2,6 +2,7 @@ import MovieCard from "./MovieCard";
 
 type MovieSectionProps = {
   title: string;
+  isLoggedIn: boolean;
   movies: {
     id: number;
     title: string;
@@ -13,6 +14,7 @@ type MovieSectionProps = {
 function MovieSection({
   title,
   movies,
+  isLoggedIn
 }: MovieSectionProps) {
   return (
     <section className="mb-12">
@@ -24,9 +26,11 @@ function MovieSection({
         {movies.map((movie) => (
           <MovieCard
             key={movie.id}
+            id={movie.id}
             title={movie.title}
-            rating={movie.rating.toString()}
+            rating={movie.rating ? movie.rating.toString() : "N/A"}
             genre={movie.genre}
+            isLoggedIn={isLoggedIn}
           />
         ))}
       </div>

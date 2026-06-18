@@ -1,12 +1,30 @@
+import { useNavigate } from "react-router-dom";
+
 type MovieCardProps = {
+  id: number;
   title: string;
   rating: string;
   genre: string;
+  isLoggedIn: boolean;
 };
 
-function MovieCard({ title, rating, genre }: MovieCardProps) {
+function MovieCard({ id, title, rating, genre, isLoggedIn }: MovieCardProps) {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    if (!isLoggedIn) {
+      alert("You must be logged in to view movie details!");
+      navigate("/login");
+    } else {
+      navigate(`/movies/${id}`);
+    }
+  }
+
+
   return (
-    <div className="movie-card">
+    <div
+      onClick={handleCardClick} 
+      className="movie-card">
       <div className="movie-poster">🎬</div>
 
       <div className="movie-info">

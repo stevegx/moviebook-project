@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../services/authService";
+import { login, register } from "../services/authService";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import FormInput from "../components/FormInput";
 
@@ -16,24 +16,50 @@ function RegisterPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMessage("");
 
     if (!formData.name || !formData.email || !formData.password || !formData.username || !formData.password_confirmation) {
-        alert("Please fill all the fields");
+        setErrorMessage("Please fill in all the fields.");
         return;
+    }
+    if (formData.name.length < 3) {
+      setErrorMessage("Name must be at least 3 characters.");
+      return;
+    }
+    if (formData.username.length < 4) {
+      setErrorMessage("Username must be at least 4 characters.");
+      return;
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(formData.email)) {
+      setErrorMessage("Invalid email format.");
+      return;
+    }
+    if (formData.password.length < 8) {
+      setErrorMessage("Password must be at least 8 characters.");
+      return;
+    }
+    if (formData.password !== formData.password_confirmation) {
+      setErrorMessage("Passwords do not match.");
+      return;
     }
 
     try {
       await register(formData);
-      alert("Registration successful");
-
+      await login({
+        email: formData.email,
+        password: formData.password,
+      });
+      
       navigate("/");
       
     } catch (error) {
       console.log(error);
-      alert("Registration failed");
+      setErrorMessage("Registration failed. Something went wrong.");
     }
   };
 
@@ -98,6 +124,13 @@ function RegisterPage() {
               {showPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
+
+          {errorMessage && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 text-red-200 text-sm rounded text-center">
+            {errorMessage}
+          </div>
+          )}
+
           <div className="flex justify-between items-center mt-6">
             <button 
               className="px-6 py-2.5 bg-movie-accent text-movie-text-main rounded cursor-pointer hover:bg-[#1b97b2] transition-colors font-bold" 

@@ -1,5 +1,5 @@
 import { FaUserCircle } from "react-icons/fa";
-import { user as getprofile, updateProfile } from "../services/authService";
+import { user as getprofile } from "../services/authService";
 import { useEffect, useState } from "react";
 import EditProfileModal from "../components/EditProfileModal";
 
@@ -7,7 +7,6 @@ interface UserProfile {
   name: string;
   username: string;
   email: string;
-  profileImage?: string; 
 }
 
 function ProfilePage() {
@@ -52,31 +51,31 @@ function ProfilePage() {
 
   const handleSaveChanges = async (updatedUser: UserProfile) => {
     try {
-      const savedUserFromServer = await updateProfile(updatedUser);
+      const savedUserFromServer = await getprofile(updatedUser);      
       setUser(savedUserFromServer);
-
       const savedString = localStorage.getItem("currentUser");
-      if (savedString) {
-      const parsed = JSON.parse(savedString);
       
-      {/* για το πως αποθηκευεται ο χρηστης στο backend */}
-      if (parsed.user) {
-        parsed.user = savedUserFromServer;
-        localStorage.setItem("currentUser", JSON.stringify(parsed));
+      if (savedString) {
+        const parsed = JSON.parse(savedString);
+        
+        {/* για το πως αποθηκευεται ο χρηστης στο backend */}
+        if (parsed.user) {
+          parsed.user = savedUserFromServer;
+          localStorage.setItem("currentUser", JSON.stringify(parsed));
+        } else {
+          localStorage.setItem("currentUser", JSON.stringify(savedUserFromServer));
+        }
+
       } else {
         localStorage.setItem("currentUser", JSON.stringify(savedUserFromServer));
       }
-
-    } else {
-      localStorage.setItem("currentUser", JSON.stringify(savedUserFromServer));
-    }
-
-    setIsModalOpen(false);
+      setIsModalOpen(false);
       alert("Profile updated successfully!")
+
     } catch (err) {
       alert("Failed to update profile ")
     }
-  }
+  };
 
   return (
     <div className="min-h-[80vh] flex flex-col justify-center items-center p-4">
@@ -84,17 +83,9 @@ function ProfilePage() {
         
         <h2 className="text-2xl font-bold font-display mb-6 text-movie-text-main">Your Profile</h2>
 
-        {user?.profileImage && user.profileImage.trim() !== "" ? (
-          <img
-            src={user.profileImage}
-            alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-2 border-movie-accent mb-6"
-          />
-        ) : (
-          <div className="w-22 h-22 rounded-full bg-movie-bg border border-gray-700 mb-6 flex items-center justify-center text-movie-accent">
-            <FaUserCircle className="w-full h-full text-movie-text-sec" />
-          </div>
-        )}
+        <div className="w-22 h-22 rounded-full bg-movie-bg border border-gray-700 mb-6 flex items-center justify-center text-movie-accent">
+          <FaUserCircle className="w-full h-full text-movie-text-sec" />
+        </div>
 
         <div className="w-full text-left space-y-3 mb-6 bg-movie-bg/30 p-4 rounded border border-gray-700/50">    
           <p className="text-sm text-movie-text-main m-1 flex items-center">
