@@ -1,10 +1,13 @@
 class Movie {
-  async fetcher(url: string, options: RequestInit | undefined = {}) {
+  async fetcher(path: string, options: RequestInit | undefined = {}) {
+    const THEMOVIEDB_API_URL = process.env.THEMOVIEDB_API_URL
     const THEMOVIEDB_ACCESS_TOKEN = process.env.THEMOVIEDB_ACCESS_TOKEN
 
-    if (!THEMOVIEDB_ACCESS_TOKEN) {
-      throw new Error('The Movie Database access token is not configured')
+    if (!THEMOVIEDB_API_URL || !THEMOVIEDB_ACCESS_TOKEN) {
+      throw new Error('The Movie Database environment variables are not configured.')
     }
+
+    const url = `${THEMOVIEDB_API_URL}${path}`
 
     const init: RequestInit = {
       headers: {
