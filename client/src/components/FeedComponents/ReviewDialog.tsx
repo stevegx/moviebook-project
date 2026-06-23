@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProfPic from "../../Assets/ProfPic.png";
 import movieImage from "../../Assets/MoviePoster1.jpg";
 interface ReviewDialogProps {
@@ -11,38 +11,19 @@ interface ReviewDialogProps {
   }) => void;
 }
 
-const MOCK_MOVIES = [
-  "The Dark Knight",
-  "Inception",
-  "Interstellar",
-  "The Batman",
-  "Pulp Fiction",
-  "Fight Club",
-];
-
 export default function ReviewDialog({
   isOpen,
   onClose,
   onReviewSubmit,
 }: ReviewDialogProps) {
-  const [movieSearch, setMovieSearch] = useState("");
-  const [selectedMovie, setSelectedMovie] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [reviewText, setReviewText] = useState("");
-
-  if (!isOpen) return null;
-
-  const filteredMovies = MOCK_MOVIES.filter((movie) =>
-    movie.toLowerCase().includes(movieSearch.toLowerCase()),
-  );
-
-  const handleSelectMovie = (movie: string) => {
-    setSelectedMovie(movie);
-    setMovieSearch(movie);
-    setShowDropdown(false);
-  };
+  const [movieSearch, setMovieSearch] = useState<string>("");
+  const [selectedMovie, setSelectedMovie] = useState<string>("");
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const [rating, setRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [reviewText, setReviewText] = useState<string>("");
+  const [movie, setMovie] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +39,38 @@ export default function ReviewDialog({
     onClose();
   };
 
+  const searchMovies = async (movieSearch: string) => {
+    if (!movieSearch) return;
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/movies/search?query=${encodeURIComponent(movieSearch)}&page=1`,
+      );
+      if (!response.ok) throw new Error("Network response not ok");
+      const data = await response.json();
+      setMovie(data.results || []);
+    } catch (error) {
+      console.error("Failed to search", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (movieSearch.length > 2) {
+        searchMovies(movieSearch);
+      }
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [movieSearch]);
+  if (!isOpen) return null;
+  console.log("eimai to movie search: ", movie);
+  const handleSelectMovie = (movie: string) => {
+    setSelectedMovie(movie);
+    setMovieSearch(movie);
+    setShowDropdown(false);
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       <div
@@ -104,27 +117,30 @@ export default function ReviewDialog({
                 className="w-full bg-movie-surface/40 border border-movie-border/80 rounded-md px-3 py-2 text-sm text-white placeholder-movie-text-sec/40 focus:outline-none focus:ring-2 focus:ring-movie-accent/50 focus:border-movie-accent transition-all"
               />
               {/*εδω θα χρειαστει GET request*/}
-              {showDropdown && movieSearch && filteredMovies.length > 0 && (
+              {showDropdown && movieSearch && movie.length > 0 && (
                 <ul className="absolute left-0 right-0 top-11 bg-movie-bg border border-movie-border/80 rounded-md shadow-xl z-50 max-h-40 overflow-y-auto p-1">
-                  {filteredMovies.map((movie, index) => (
+                  {movie.map((movieItem, index) => (
                     <li
                       key={index}
-                      onClick={() => handleSelectMovie(movie)}
+                      onClick={() =>
+                        handleSelectMovie(
+                          `${movieItem.original_title} (${new Date(movieItem.release_date).getFullYear()})`,
+                        )
+                      }
                       className="px-3 py-2 text-sm  hover:bg-movie-surface hover:text-white rounded-sm cursor-pointer transition-colors"
                     >
                       <div className="flex gap-4">
                         <img
-                          src={movieImage}
-                          alt={movie}
+                          src={`https://image.tmdb.org/t/p/w500${movieItem.poster_path}`}
+                          alt={movieItem.original_title}
                           className="w-18 h-18 object-fit"
                         />
                         <div className="flex flex-col gap-0.5">
-                          <h2 className="text-movie-text text-md">{movie}</h2>{" "}
+                          <h2 className="text-movie-text text-md">
+                            {movieItem.original_title}
+                          </h2>{" "}
                           <span className="text-movie-text-sec text-sm">
-                            1992
-                          </span>
-                          <span className="text-movie-text-sec text-sm">
-                            Thriller, Action
+                            ({new Date(movieItem.release_date).getFullYear()})
                           </span>
                         </div>
                       </div>

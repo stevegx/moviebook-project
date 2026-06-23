@@ -200,7 +200,11 @@ export default function MoviePage() {
           </div>
         </div>
       </section>
-      <MovieGallery category="popular" currentMovieId={id as string} />
+      <MovieGallery
+        category="popular"
+        currentMovieId={id as string}
+        tittle="Similar Movies"
+      />
     </div>
   );
 }
