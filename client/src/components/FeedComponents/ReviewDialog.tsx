@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ProfPic from "../../Assets/ProfPic.png";
-import movieImage from "../../Assets/MoviePoster1.jpg";
 interface ReviewDialogProps {
   isOpen: boolean;
   onClose: () => void;
