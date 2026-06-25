@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { ZodType } from 'zod'
-import { ValidationError } from '../utils/errors'
+import { ValidationError } from '@/utils/errors'
 
 const validate = (schema: ZodType<any, any, any>) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -16,7 +16,7 @@ const validate = (schema: ZodType<any, any, any>) => {
 
         result.error.issues.forEach((error) => {
           const field = error.path[error.path.length - 1]?.toString() || 'unknown'
-          
+
           if (!errors[field]) {
             errors[field] = error.message
           }

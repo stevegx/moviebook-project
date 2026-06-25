@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { schema } from '../lib/database'
+import { schema } from '@/lib/database'
 
 async function auth(req: Request, res: Response, next: NextFunction) {
   const APP_KEY = process.env.APP_KEY || ''
