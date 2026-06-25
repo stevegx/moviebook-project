@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
 })
 
 const feedSchema = new mongoose.Schema({
-  user_id: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
@@ -47,12 +47,12 @@ const feedSchema = new mongoose.Schema({
 })
 
 const feedLikeSchema = new mongoose.Schema({
-  user_id: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  feed_id: {
+  feed: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Feed',
     required: true,
@@ -61,15 +61,15 @@ const feedLikeSchema = new mongoose.Schema({
   timestamps: true,
 })
 
-feedLikeSchema.index({ user_id: 1, feed_id: 1 }, { unique: true })
+feedLikeSchema.index({ user: 1, feed: 1 }, { unique: true })
 
 const feedCommentSchema = new mongoose.Schema({
-  user_id: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  feed_id: {
+  feed: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Feed',
     required: true,
@@ -78,10 +78,10 @@ const feedCommentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  parent_id: {
+  parent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'FeedComment',
-    default: null
+    default: null,
   },
 }, {
   timestamps: true,
