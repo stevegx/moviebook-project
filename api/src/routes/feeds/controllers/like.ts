@@ -4,7 +4,10 @@ import { FeedLike } from '@/lib/database/schema'
 class Controller {
   async index(req: Request, res: Response) {
     try {
-      const likes = await FeedLike.find({ feed_id: req.params.feed_id as string })
+      const likes = await FeedLike
+        .find({ feed: req.params.feed as string })
+        .populate('user', '-password')
+        .lean()
 
       return res.json(likes)
     } catch (error) {
@@ -14,7 +17,10 @@ class Controller {
 
   async show(req: Request, res: Response) {
     try {
-      const likes = await FeedLike.find({ feed_id: req.params.feed_id as string })
+      const likes = await FeedLike
+        .find({ feed: req.params.feed as string })
+        .populate('user', '-password')
+        .lean()
 
       return res.json(likes.length)
     } catch (error) {
@@ -23,12 +29,11 @@ class Controller {
   }
 
   async store(req: Request, res: Response) {
-    const user_id = req.user.id
-
     try {
-      const like = await FeedLike.create({ user_id, feed_id: req.params.feed_id as string })
+      const like = await FeedLike.create({ user: req.user.id, feed: req.params.feed as string })
+      const populatedLike = await like.populate('user', '-password')
 
-      return res.status(201).json(like)
+      return res.status(201).json(populatedLike)
     } catch (error) {
       return res.status(500).json({ error })
     }
@@ -36,7 +41,10 @@ class Controller {
 
   async destroy(req: Request, res: Response) {
     try {
-      const like = await FeedLike.findByIdAndDelete(req.params.id as string).lean()
+      const like = await FeedLike
+        .findByIdAndDelete(req.params.id)
+        .populate('user', '-password')
+        .lean()
 
       if (!like) {
         return res.status(404).json({ message: "Like not found" })

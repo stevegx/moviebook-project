@@ -5,9 +5,30 @@ import type { FeedStoreInput, FeedUpdateInput } from '../schema'
 class Controller {
   async index(req: Request, res: Response) {
     try {
-      const feeds = await Feed.find()
+      const page = Math.max(1, parseInt(req.query.page as string) || 1)
+      const limit = Math.max(1, Math.min(100, parseInt(req.query.limit as string) || 10))
+      const skip = (page - 1) * limit
+      const query = Feed.find()
 
-      return res.json(feeds)
+      const [feeds, total] = await Promise.all([
+        query
+          .clone()
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .populate('user', '-password'),
+        query.clone().countDocuments()
+      ])
+
+      const totalPages = Math.ceil(total / limit)  
+
+      return res.json({
+        data: feeds,
+        page,
+        limit,
+        total,
+        total_pages: totalPages
+      })
     } catch (error) {
       return res.status(500).json({ error })
     }
@@ -29,7 +50,7 @@ class Controller {
 
   async store(req: Request<{}, {}, FeedStoreInput>, res: Response) {
     try {
-      const feed = await Feed.create(req.body)
+      const feed = await Feed.create({ user: req.user.id, ...req.body })
 
       return res.status(201).json(feed)
     } catch (error) {

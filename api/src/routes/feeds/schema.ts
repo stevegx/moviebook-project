@@ -18,6 +18,7 @@ const feedUpdate = z.object({
 const feedComment = z.object({
   body: z.object({
     content: z.string("Content must include."),
+    parent: z.string().nullable().optional(),
   })
 })
 
