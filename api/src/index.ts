@@ -3,13 +3,15 @@ import express from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
-import {
-  auth,
-  movies,
-} from './routes'
 import { errorHandler } from './middlewares'
 import useDatabase from './lib/database'
 import dns from 'dns'
+import {
+  auth,
+  user,
+  movies,
+  feeds,
+} from './routes'
 
 if (process.env.NODE_ENV !== 'production') {
   dns.setServers(['1.1.1.1', '8.8.8.8'])
@@ -37,7 +39,9 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use('/api/auth', auth)
+app.use('/api/user', user)
 app.use('/api/movies', movies)
+app.use('/api/feeds', feeds)
 
 app.use(errorHandler)
 

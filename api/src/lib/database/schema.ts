@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
+    unique: true,
     required: true,
   },
   password: {
@@ -21,4 +22,72 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
 })
 
+const feedSchema = new mongoose.Schema({
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  movie_id: {
+    type: String,
+    required: true,
+  },
+  rating: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 5,
+  },
+  content: {
+    type: String,
+    default: null,
+  },
+}, {
+  timestamps: true,
+})
+
+const feedLikeSchema = new mongoose.Schema({
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  feed_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Feed',
+    required: true,
+  },
+}, {
+  timestamps: true,
+})
+
+feedLikeSchema.index({ user_id: 1, feed_id: 1 }, { unique: true })
+
+const feedCommentSchema = new mongoose.Schema({
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  feed_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Feed',
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  parent_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'FeedComment',
+    default: null
+  },
+}, {
+  timestamps: true,
+})
+
 export const User = mongoose.model('User', userSchema)
+export const Feed = mongoose.model('Feed', feedSchema)
+export const FeedLike = mongoose.model('FeedLike', feedLikeSchema)
+export const FeedComment = mongoose.model('FeedComment', feedCommentSchema)
