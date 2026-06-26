@@ -48,7 +48,6 @@ export default function PostCard({ review }: PostCardProps) {
       );
       const data = await response.json();
 
-      // 🟢 SAFE CHECK: Ensure data is an array before using .find
       if (response.ok && Array.isArray(data)) {
         setLikeCount(data.length);
         const currentUserId = user?._id || user?.id;
@@ -66,7 +65,6 @@ export default function PostCard({ review }: PostCardProps) {
     }
   };
 
-  // 2. Fetch Movie Details & Likes on Mount
   useEffect(() => {
     const fetchMovieDetails = async () => {
       if (!review.movie_id) {
@@ -97,7 +95,6 @@ export default function PostCard({ review }: PostCardProps) {
     fetchLikes();
   }, [review.movie_id, reviewId]);
 
-  // 3. Handle Like / Unlike Toggle
   const handleLikeToggle = async () => {
     if (!reviewId) return;
 
@@ -120,7 +117,6 @@ export default function PostCard({ review }: PostCardProps) {
           console.log("Like deleted successfully");
         } else {
           console.error("Failed to delete. Status:", response.status);
-          // Αν απέτυχε, ίσως το like δεν υπάρχει πια, οπότε ανανεώνουμε το state
           fetchLikes();
         }
       } else {

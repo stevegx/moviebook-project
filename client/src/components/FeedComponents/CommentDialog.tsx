@@ -36,9 +36,7 @@ export default function CommentDialog({
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🟢 Κρατάμε το comment στο οποίο γίνεται το reply (για το UI / @tag)
   const [replyToComment, setReplyToComment] = useState<Comment | null>(null);
-  // 🟢 Κρατάμε το ID του ΑΡΧΙΚΟΥ σχολίου για να ξέρει το backend πού να το κάνει push
   const [actualParentId, setActualParentId] = useState<string | null>(null);
 
   const reviewId = review._id || review.id;
@@ -193,7 +191,7 @@ export default function CommentDialog({
                           {new Date(comment.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <p className="text-sm text-movie-text-sec/90 mt-1 break-words">
+                      <p className="text-sm text-movie-text-sec/90 mt-1 wrap-break-words">
                         {comment.content}
                       </p>
 
@@ -206,7 +204,6 @@ export default function CommentDialog({
                     </div>
                   </div>
 
-                  {/* Λίστα Απαντήσεων (Flat κάτω από το σχόλιο) */}
                   {replies.length > 0 && (
                     <div className="flex flex-col gap-2 pl-6 border-l-2 border-movie-accent/30 ml-4 my-1">
                       {replies.map((reply) => (
@@ -229,8 +226,7 @@ export default function CommentDialog({
                               </span>
                             </div>
 
-                            {/* Εμφάνιση του @tag αυτού στον οποίο πήγε η απάντηση */}
-                            <p className="text-xs text-movie-text-sec/90 mt-1 break-words leading-relaxed">
+                            <p className="text-xs text-movie-text-sec/90 mt-1 wrap-break-words leading-relaxed">
                               <span className="text-movie-accent font-bold mr-1.5 bg-movie-accent/10 px-1 py-0.5 rounded">
                                 @
                                 {reply.parent === comment._id
@@ -242,7 +238,6 @@ export default function CommentDialog({
                               {reply.content}
                             </p>
 
-                            {/* 🟢 Νέο κουμπί Reply ΜΕΣΑ στο reply - Στοχεύει το reply, αλλά στέλνει το ID του comment */}
                             <button
                               onClick={() =>
                                 handleReplyClick(reply, comment._id)

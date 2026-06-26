@@ -42,7 +42,6 @@ export default function ReviewDialog({
 
       if (!response.ok) throw new Error("Failed to post");
 
-      // Παίρνουμε το review object που μόλις δημιουργήθηκε στη βάση δεδομένων
       const createdReview = await response.json();
 
       // 1. Καθαρισμός της φόρμας
@@ -51,7 +50,6 @@ export default function ReviewDialog({
       setRating(0);
       setReviewText("");
 
-      // 2. Ενημέρωση του parent component και κλείσιμο του modal
       if (typeof onReviewSubmit === "function") {
         onReviewSubmit(createdReview);
       }
