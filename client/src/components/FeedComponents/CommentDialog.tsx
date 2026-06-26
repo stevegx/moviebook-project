@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ProfPic from "../../Assets/ProfPic.png";
 import { Review } from "../../pages/FeedPage";
 import MoviePoster from "../../Assets/MoviePoster1.jpg";
@@ -30,6 +30,7 @@ export default function CommentDialog({
   const [activeShowReplyId, setActiveShowReplyId] = useState<string | null>(
     null,
   );
+  const replyInputRef = useRef<HTMLInputElement>(null);
   // Φόρτωση σχολίων από το localStorage
   useEffect(() => {
     if (isOpen && review?.id) {
@@ -114,6 +115,15 @@ export default function CommentDialog({
       JSON.stringify(updatedComments),
     );
   };
+
+  // Όταν πατάς το reply, άνοιξε το και κάνε focus
+  const handleReplyClick = (commentId: string) => {
+    setActiveReplyId(commentId);
+    setTimeout(() => {
+      replyInputRef.current?.focus();
+    }, 100);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 ">
       {/* BACKDROP */}
@@ -200,24 +210,24 @@ export default function CommentDialog({
                     </button>
                   )
                 ) : null}
-                <div className="flex gap-2">
+                <div className="flex gap-3">
+                  {/* Like Button */}
                   <button
                     onClick={() => handleLike(comment.id)}
-                    className={`flex w-19 h-8 justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 font-medium 
+                    className={`flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg border text-sm font-medium transition-all duration-200 w-22
     ${
       comment.likes
-        ? "bg-movie-accent/20 text-movie-accent font-bold shadow-xs shadow-movie-accent"
-        : "bg-movie-accent/10 text-movie-accent hover:bg-movie-accent/20"
+        ? "bg-movie-accent/10 border-movie-accent/50 text-movie-accent"
+        : "bg-transparent border-movie-border/40 text-movie-text-sec hover:border-movie-text-sec hover:text-white"
     }`}
                   >
-                    {comment.likes ? "Liked" : "👍 Like"}
+                    {comment.likes ? "❤️ Liked" : "🤍 Like"}
                   </button>
 
+                  {/* Reply Button */}
                   <button
-                    onClick={() => {
-                      setActiveReplyId(comment.id);
-                    }}
-                    className="flex w-19 h-8 justify-center items-center gap-1.5 hover:text-movie-accent bg-movie-accent/10 hover:bg-movie-accent/20 text-movie-accent px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 font-medium"
+                    onClick={() => handleReplyClick(comment.id)}
+                    className="flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg border border-movie-border/40 text-sm font-medium text-movie-text-sec hover:text-white hover:border-movie-text-sec transition-all duration-200 w-20"
                   >
                     Reply
                   </button>
@@ -232,7 +242,8 @@ export default function CommentDialog({
                     }}
                   >
                     <textarea
-                      placeholder="Reply to @Dark_knight"
+                      ref={replyInputRef}
+                      placeholder={`Reply to @${comment.username}`}
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       rows={1}

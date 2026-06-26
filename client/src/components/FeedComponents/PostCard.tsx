@@ -68,33 +68,30 @@ export default function PostCard({ review }: PostCardProps) {
         <div className="my-2"></div>
       )}
       {/* BOTTOM ROW */}
-      <div className="flex items-center gap-4 text-sm text-movie-text-sec w-full">
-        {!like ? (
-          <button
-            onClick={() => {
-              setLike(like + 1);
-            }}
-            className="flex w-20 h-9 justify-center items-center gap-1.5 hover:text-movie-accent bg-movie-accent/10 hover:bg-movie-accent/20 text-movie-accent px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 font-medium"
-          >
-            👍 Like
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              setLike(like - 1);
-            }}
-            className="flex w-20 h-9 justify-center items-center gap-1.5 hover:text-movie-accent bg-movie-accent/10 hover:bg-movie-accent/20 text-movie-accent px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 font-bold  shadow-xs shadow-movie-accent"
-          >
-            Liked
-          </button>
-        )}
+      <div className="flex items-center gap-3 w-full pt-4 border-t border-movie-border/20">
+        {/* Like Button */}
+        <button
+          onClick={() => setLike(like === 0 ? 1 : 0)}
+          className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg border text-sm font-medium transition-all duration-200 cursor-pointer w-24
+      ${
+        like
+          ? "bg-movie-accent/10 border-movie-accent/50 text-movie-accent"
+          : "bg-transparent border-movie-border/40 text-movie-text-sec hover:border-movie-text-sec hover:text-white"
+      }`}
+        >
+          <span>{like ? "❤️" : "🤍"}</span>
+          {like ? "Liked" : "Like"}
+        </button>
 
+        {/* Comment Button */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex  w-24 h-9 px-1 py-1 items-center gap-1.5 hover:text-white bg-movie-border/40 hover:bg-movie-accent/20  rounded-lg cursor-pointer transition-all duration-300 font-medium"
+          className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg border border-movie-border/40 text-sm font-medium text-movie-text-sec hover:text-white hover:border-movie-text-sec transition-all duration-200 cursor-pointer w-28"
         >
-          💬 Comment
+          <span>💬</span>
+          Comment
         </button>
+
         <CommentDialog
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
