@@ -1,5 +1,5 @@
 import { type Request, type Response, type NextFunction } from 'express'
-import { HttpError, ValidationError } from '../utils/errors'
+import { HttpError, ValidationError } from '@/utils/errors'
 
 const errorHandler = (
   error: any,
