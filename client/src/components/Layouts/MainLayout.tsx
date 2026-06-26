@@ -15,9 +15,9 @@ function MainLayout({ children }: LayoutProps) {
     const checkUser = async () => {
       try {
         const data = await user();
-        setCurrentUser(data); 
+        setCurrentUser(data);
       } catch (error) {
-        setCurrentUser(null); 
+        setCurrentUser(null);
       }
     };
     checkUser();
@@ -29,15 +29,15 @@ function MainLayout({ children }: LayoutProps) {
 
   return (
     <div className="flex flex-col min-h-screen bg-movie-bg">
-      <Navbar 
-        currentUser={currentUser} 
-        isLoggedIn={!!currentUser} 
+      <Navbar
+        currentUser={currentUser}
+        isLoggedIn={!!currentUser}
         onLogout={handleLogoutSuccess}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
 
-      <main className="flex-grow">
+      <main className="grow">
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
             return React.cloneElement(child, { searchQuery } as any);
@@ -45,7 +45,7 @@ function MainLayout({ children }: LayoutProps) {
           return child;
         })}
       </main>
-      
+
       <Footer isLoggedIn={!!currentUser} onLogout={handleLogoutSuccess} />
     </div>
   );

@@ -95,8 +95,7 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
             <div className="space-y-10 mt-10">
               {/*<MovieSection title="Keep Watching" movies={keepWatching} isLoggedIn={true} /> */}
               {/* <MovieSection title="Trending Movies" movies={trending} isLoggedIn={true} /> */}
-              <MovieGallery category="popular" tittle="Trending Movies" />
-              <MovieGallery category="top_rated" tittle="Top Movies" />
+
               <MovieSection
                 title="Top Rated"
                 movies={topRated}
