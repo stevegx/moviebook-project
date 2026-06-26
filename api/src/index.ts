@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser'
 import { errorHandler } from './middlewares'
 import useDatabase from './lib/database'
 import dns from 'dns'
+import swaggerUi from 'swagger-ui-express'
+import YAML from 'yamljs'
 import {
   auth,
   user,
@@ -16,6 +18,8 @@ import {
 if (process.env.NODE_ENV !== 'production') {
   dns.setServers(['1.1.1.1', '8.8.8.8'])
 }
+
+const swaggerDocument = YAML.load('./swagger.yaml')
 
 const app = express()
 const database = await useDatabase()
@@ -37,6 +41,7 @@ app.use(
 app.use(morgan('tiny'))
 app.use(express.json())
 app.use(cookieParser())
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/auth', auth)
 app.use('/api/user', user)

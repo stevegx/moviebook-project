@@ -1,0 +1,408 @@
+openapi: 3.0.0
+info:
+  title: MovieBook API Documentation
+  version: 1.0.0
+
+paths:
+  /auth/login:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Successful login
+  
+  /auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                password_confirmation:
+                  type: string
+              required:
+                - name
+                - username
+                - email
+                - password
+                - password_confirmation
+      responses:
+        '201':
+          description: User created
+  
+  /auth/logout:
+    post:
+      summary: Log out the current user
+      responses:
+        '204':
+          description: Logged out successfully
+  
+  /user:
+    get:
+      summary: Get authenticated user information
+      responses:
+        '200':
+          description: Get user information
+  
+  /user/{user_id}/information:
+    patch:
+      summary: Update user information
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '200':
+          description: User information updated
+  
+  /user/{user_id}/password:
+    put:
+      summary: Update user password
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  required: true
+                password_confirmation:
+                  type: string
+                  required: true
+      responses:
+        '200':
+          description: User password updated
+  
+  /movies/{movie_id}:
+    get:
+      summary: Get a movie.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get a  movie item.
+  
+  /movies/list:
+    get:
+      summary: Get popular or now playing or upcoming or top rated movies.
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - popular
+              - top_rated
+              - now_playing
+              - upcoming
+            default: popular
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Get a list of popular or now playing or upcoming or top rated movies.
+  
+  /movies/search:
+    get:
+      summary: Search for movies.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          default: 1
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get a list of movies.
+  
+  /movies/{movie_id}/credits:
+    get:
+      summary: Get credits for a movie.
+      parameters:
+        - name: movie_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get a list of credits for a movie.
+  
+  /feeds:
+    get:
+      summary: List feed items
+      responses:
+        '200':
+          description: A list of feeds
+    post:
+      summary: Create a new feed item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                movie_id:
+                  type: string
+                rating:
+                  type: number
+                  default: 1
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Feed item created
+
+  /feeds/{feed_id}:
+    get:
+      summary: Get feed item by ID
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feed item retrieved
+    patch:
+      summary: Update feed item by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: number
+                  default: 1
+                  required: false
+                content:
+                  type: string
+                  required: false
+      responses:
+        '200':
+          description: Feed item updated
+    delete:
+      summary: Delete feed item by ID
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Feed item deleted
+
+  /feeds/{feed_id}/likes:
+    get:
+      summary: Show likes count for a feed item
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A count of likes
+    post:
+      summary: Like a feed item
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feed item liked
+  
+  /feeds/{feed_id}/likes/{like_id}:
+    delete:
+      summary: Unlike a feed item
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: like_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Feed item unlike
+
+  /feeds/{feed_id}/comments:
+    get:
+      summary: List comments for a feed item
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of comments and reply comments for a feed item
+    post:
+      summary: Create a comment for a feed item
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  required: true
+                parent:
+                  type: string
+                  default: null
+                  required: false
+      responses:
+        '201':
+          description: Comment created
+  
+  /feeds/{feed_id}/comments/{comment_id}:
+    get:
+      summary: Get a comment for a feed item
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: comment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A comment for a feed item
+    patch:
+      summary: Update a comment for a feed item
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: comment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  required: true
+                parent:
+                  type: string
+                  default: null
+                  required: false
+    delete:
+      summary: Delete a comment for a feed item
+      parameters:
+        - name: feed_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: comment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comment updated
