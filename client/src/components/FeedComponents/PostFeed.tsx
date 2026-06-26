@@ -2,14 +2,7 @@ import React, { useState } from "react";
 import ProfPic from "../../Assets/ProfPic.png";
 import ReviewDialog from "./ReviewDialog";
 
-interface PostFeedProps {
-  onReviewSubmit: (review: {
-    movieTitle: string;
-    rating: number;
-    reviewText: string;
-  }) => void;
-}
-export default function PostFeed({ onReviewSubmit }: PostFeedProps) {
+export default function PostFeed() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -36,7 +29,10 @@ export default function PostFeed({ onReviewSubmit }: PostFeedProps) {
       <ReviewDialog
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onReviewSubmit={onReviewSubmit}
+        onReviewSubmit={() => {
+          setIsModalOpen(false);
+          window.location.reload();
+        }}
       />
     </div>
   );
