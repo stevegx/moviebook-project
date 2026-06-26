@@ -1,14 +1,11 @@
-import React from "react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "./providers/AuthContext";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const currentUser = localStorage.getItem("currentUser");
+export default function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
 
-  if (!currentUser) {
-    return <Navigate to="/" />;
-  }
+  if (loading) return <div>Φόρτωση...</div>; // Περιμένει το API
+  if (!user) return <Navigate to="/login" replace />; // Κάνει redirect ΜΟΝΟ αν τελείωσε το loading και δεν υπάρχει χρήστης
 
   return children;
 }
-
-export default ProtectedRoute;

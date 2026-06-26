@@ -1,21 +1,30 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import ProfPic from "../../Assets/ProfPic.png";
-import { Review } from "../../pages/FeedPage";
-import MoviePoster from "../../Assets/MoviePoster1.jpg";
+
+interface Comment {
+  _id: string;
+  feed_id: string;
+  content: string;
+  parent: any;
+  createdAt: string;
+  user?: {
+    username: string;
+  };
+  replies?: Comment[];
+}
 
 interface CommentDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  review: Review;
-}
-
-interface Comment {
-  id: string;
-  username: string;
-  text: string;
-  timeAgo: string;
-  replies?: Comment[];
-  likes: boolean;
+  review: {
+    id?: string;
+    _id?: string;
+    content: string;
+    rating?: number;
+    movieTitle: string;
+    posterUrl: string;
+    user?: { username: string };
+  };
 }
 
 export default function CommentDialog({
@@ -23,329 +32,276 @@ export default function CommentDialog({
   onClose,
   review,
 }: CommentDialogProps) {
-  const [commentText, setCommentText] = useState<string>("");
-  const [replyText, setReplyText] = useState<string>("");
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
-  const [activeShowReplyId, setActiveShowReplyId] = useState<string | null>(
-    null,
-  );
-  const replyInputRef = useRef<HTMLInputElement>(null);
-  // Φόρτωση σχολίων από το localStorage
-  useEffect(() => {
-    if (isOpen && review?.id) {
-      const saved = localStorage.getItem(`comments_review_${review.id}`);
-      if (saved) {
-        setComments(JSON.parse(saved));
-      } else {
-        setComments([
-          {
-            id: "c1",
-            username: "Dark_Knight",
-            text: "Excellent movie! Tottaly would recommend.",
-            timeAgo: "2h ago",
-            likes: false,
-          },
-        ]);
+  const [rootComments, setRootComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // 🟢 Κρατάμε το comment στο οποίο γίνεται το reply (για το UI / @tag)
+  const [replyToComment, setReplyToComment] = useState<Comment | null>(null);
+  // 🟢 Κρατάμε το ID του ΑΡΧΙΚΟΥ σχολίου για να ξέρει το backend πού να το κάνει push
+  const [actualParentId, setActualParentId] = useState<string | null>(null);
+
+  const reviewId = review._id || review.id;
+
+  const fetchComments = async () => {
+    if (!reviewId) return;
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/feeds/${reviewId}/comments`,
+        { credentials: "include" },
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setRootComments(data.data || []);
       }
+    } catch (err) {
+      console.error("Failed to load comments", err);
     }
-  }, [isOpen, review?.id]);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchComments();
+    }
+  }, [isOpen, reviewId]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 🟢 Συνάρτηση για όταν πατάμε Reply (είτε σε Root σχόλιο είτε σε Reply)
+  const handleReplyClick = (targetComment: Comment, rootCommentId: string) => {
+    setReplyToComment(targetComment); // Για να δείξουμε "@username" στο input
+    setActualParentId(rootCommentId); // Πάντα το ID του αρχικού σχολίου για το backend
+  };
+
+  const handleCancelReply = () => {
+    setReplyToComment(null);
+    setActualParentId(null);
+  };
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    if (!newComment.trim() || !reviewId) return;
 
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      username: "Not_Batman",
-      text: commentText.trim(),
-      timeAgo: "Just now",
-      likes: false,
-    };
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/feeds/${reviewId}/comments`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            content: newComment.trim(),
+            parent: actualParentId, // 🟢 Στέλνει το ID του root σχολίου (ή null αν είναι νέο σχόλιο)
+          }),
+        },
+      );
 
-    const updatedComments = [...comments, newComment];
-    setComments(updatedComments);
-    localStorage.setItem(
-      `comments_review_${review.id}`,
-      JSON.stringify(updatedComments),
-    );
-    setCommentText("");
-  };
-  const handleReply = (parentId: string, replyText: string) => {
-    const newReply: Comment = {
-      id: Date.now().toString(),
-      username: "Not_Batman", //
-      text: replyText.trim(),
-      timeAgo: "Just now",
-      replies: [],
-      likes: false,
-    };
-
-    const updatedComments = comments.map((comment) => {
-      if (comment.id === parentId) {
-        return {
-          ...comment,
-          replies: [...(comment.replies || []), newReply],
-        };
+      if (response.ok) {
+        setNewComment("");
+        handleCancelReply();
+        fetchComments();
       }
-      return comment;
-    });
-
-    setComments(updatedComments);
-    localStorage.setItem(
-      `comments_review_${review.id}`,
-      JSON.stringify(updatedComments),
-    );
-
-    setReplyText("");
-  };
-  const handleLike = (id: string) => {
-    const updatedComments = comments.map((comment) => {
-      if (comment.id === id) {
-        return { ...comment, likes: !comment.likes };
-      }
-      return comment;
-    });
-
-    setComments(updatedComments);
-    localStorage.setItem(
-      `comments_review_${review.id}`,
-      JSON.stringify(updatedComments),
-    );
-  };
-
-  // Όταν πατάς το reply, άνοιξε το και κάνε focus
-  const handleReplyClick = (commentId: string) => {
-    setActiveReplyId(commentId);
-    setTimeout(() => {
-      replyInputRef.current?.focus();
-    }, 100);
+    } catch (err) {
+      console.error("Failed to post comment", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 ">
-      {/* BACKDROP */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-all duration-300 ease-in-out"
+        className="absolute inset-0 bg-black/85 backdrop-blur-md"
         onClick={onClose}
       />
 
-      {/* DIALOG CONTAINER */}
-      <div className="bg-movie-dark border border-movie-border/80 w-full max-w-xl rounded-xl shadow-2xl relative z-10 p-6 duration-200 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2 flex flex-col max-h-[90vh]">
-        {/* CLOSE BUTTON */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-movie-accent text-movie-text-sec cursor-pointer text-sm p-1 z-20"
-        >
-          ✕<span className="sr-only">Close</span>
-        </button>
-
-        {/* DIALOG HEADER */}
-        <div className="flex flex-col space-y-1.5 text-left mb-4 shrink-0">
-          <h2 className="text-base font-semibold text-white leading-none tracking-tight">
-            <span className="text-movie-accent font-black text-xl uppercase tracking-wide">
-              {review.movieTitle}
-            </span>{" "}
-            - Comments
-          </h2>
-          <p className="text-xs text-movie-text-sec/60">
-            Review discussion thread. Read what others think or leave your own
-            comment.
-          </p>
-        </div>
-
-        {/* SCROLLABLE CONTENT AREA */}
-        <div className="flex-1 overflow-y-auto pr-1 space-y-5 custom-scrollbar">
-          {/* THE ORIGINAL REVIEW (REUSABLE FUNCTION) */}
-          <ReviewSection review={review} />
-
-          <hr className="border-movie-border/40 w-full" />
-
-          {/* COMMENTS LIST */}
-          <div className="space-y-3">
-            {comments.map((comment) => (
-              <div
-                key={comment.id}
-                className="bg-movie-surface/30 border border-movie-border/50 rounded-lg p-3.5 flex flex-col gap-1.5"
-              >
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-sm font-bold text-movie-accent hover:underline cursor-pointer">
-                    @{comment.username}
+      <div className="bg-movie-dark border border-movie-border/80 w-full max-w-xl rounded-xl shadow-2xl relative z-10 flex flex-col max-h-[90vh]">
+        {/* HEADER */}
+        <div className="p-4 border-b border-movie-border/40 bg-movie-bg/80 rounded-t-xl flex flex-col gap-4">
+          <div className="flex justify-between items-start">
+            <div className="flex gap-3 items-center">
+              <img
+                src={ProfPic}
+                className="w-10 h-10 rounded-full object-cover border border-movie-border"
+                alt="avatar"
+              />
+              <div>
+                <h3 className="text-sm font-semibold text-white">
+                  @{review.user?.username || "user"}{" "}
+                  <span className="text-movie-text-sec font-normal">
+                    shared a review
                   </span>
-                  <span className="text-xs text-movie-text-sec/50">
-                    {comment.timeAgo}
-                  </span>
-                </div>
-                <p className="text-sm text-movie-text-sec/90 leading-relaxed">
-                  {comment.text}
-                </p>
-                {comment.replies && comment.replies.length > 0 ? (
-                  activeShowReplyId === comment.id ? (
-                    comment.replies.map((reply) => (
-                      <div
-                        className="flex flex-col mt-3 bg-movie-surface rounded-lg p-2 mx-4 my-1"
-                        key={reply.id}
-                      >
-                        <div className="flex justify-between">
-                          <h1 className="text-movie-accent font-semibold">
-                            {reply.username}
-                          </h1>
-                          <h3 className="text-xs text-movie-text-sec">
-                            {reply.timeAgo}
-                          </h3>
-                        </div>
-                        <p className="px-1 mt-1 text-movie-text-main">
-                          {reply.text}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <button
-                      onClick={() => setActiveShowReplyId(comment.id)}
-                      className="text-movie-accent text-sm m-2 text-start cursor-pointer hover:underline"
-                    >
-                      Show replies ({comment.replies.length})
-                    </button>
-                  )
-                ) : null}
-                <div className="flex gap-3">
-                  {/* Like Button */}
-                  <button
-                    onClick={() => handleLike(comment.id)}
-                    className={`flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg border text-sm font-medium transition-all duration-200 w-22
-    ${
-      comment.likes
-        ? "bg-movie-accent/10 border-movie-accent/50 text-movie-accent"
-        : "bg-transparent border-movie-border/40 text-movie-text-sec hover:border-movie-text-sec hover:text-white"
-    }`}
-                  >
-                    {comment.likes ? "❤️ Liked" : "🤍 Like"}
-                  </button>
-
-                  {/* Reply Button */}
-                  <button
-                    onClick={() => handleReplyClick(comment.id)}
-                    className="flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg border border-movie-border/40 text-sm font-medium text-movie-text-sec hover:text-white hover:border-movie-text-sec transition-all duration-200 w-20"
-                  >
-                    Reply
-                  </button>
-                </div>
-                {activeReplyId === comment.id && (
-                  <form
-                    className="flex  gap-3 mt-1 shrink-0"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handleReply(comment.id, replyText);
-                      setActiveReplyId(null);
-                    }}
-                  >
-                    <textarea
-                      ref={replyInputRef}
-                      placeholder={`Reply to @${comment.username}`}
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      rows={1}
-                      className="w-full bg-movie-surface/40 border border-movie-border/80 rounded-md px-2 py-1 text-sm text-white placeholder-movie-text-sec/40 focus:outline-none focus:ring-2 focus:ring-movie-accent/50 focus:border-movie-accent resize-none transition-all leading-relaxed"
-                    />
-                    <button
-                      type="submit"
-                      disabled={!replyText.trim()}
-                      className="w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-movie-accent text-white font-semibold text-sm px-5 py-2 hover:bg-opacity-90 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer shadow-sm active:scale-98"
-                    >
-                      Post
-                    </button>
-                  </form>
+                </h3>
+                {review.rating && (
+                  <div className="text-xs text-amber-400 mt-0.5">
+                    {"★".repeat(review.rating)}
+                  </div>
                 )}
               </div>
-            ))}
+            </div>
+            <button
+              onClick={onClose}
+              className="text-movie-text-sec text-sm p-1 hover:text-white bg-movie-surface/30 rounded-full w-7 h-7 flex items-center justify-center cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="flex gap-3 bg-movie-surface/20 p-3 rounded-xl border border-movie-border/30 items-start">
+            <img
+              src={review.posterUrl}
+              alt={review.movieTitle}
+              className="w-16 h-24 object-cover rounded-md border border-movie-border shadow-md shrink-0"
+            />
+            <div className="flex flex-col gap-1 min-w-0">
+              <h4 className="text-xs font-bold text-movie-accent uppercase tracking-wider">
+                {review.movieTitle}
+              </h4>
+              <p className="text-sm text-movie-text-sec italic leading-relaxed whitespace-pre-line">
+                "{review.content}"
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* INPUT/FORM AREA */}
+        {/* COMMENTS AREA */}
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-movie-dark/50">
+          {rootComments.length === 0 ? (
+            <p className="text-xs text-movie-text-sec/40 text-center py-8 italic">
+              No comments yet. Be the first to reply!
+            </p>
+          ) : (
+            rootComments.map((comment) => {
+              const replies = comment.replies || [];
+
+              return (
+                <div key={comment._id} className="flex flex-col gap-1.5">
+                  {/* Κύριο Σχόλιο */}
+                  <div className="bg-movie-surface/40 border border-movie-border/40 p-3 rounded-xl flex gap-3 shadow-sm">
+                    <img
+                      src={ProfPic}
+                      className="w-8 h-8 rounded-full object-cover shrink-0"
+                      alt="avatar"
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-white">
+                          @{comment.user?.username || "Anonymous"}
+                        </span>
+                        <span className="text-[10px] text-movie-text-sec/50">
+                          {new Date(comment.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-sm text-movie-text-sec/90 mt-1 break-words">
+                        {comment.content}
+                      </p>
+
+                      <button
+                        onClick={() => handleReplyClick(comment, comment._id)}
+                        className="text-[11px] text-movie-accent hover:underline mt-2 w-fit font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        ↩️ Reply
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Λίστα Απαντήσεων (Flat κάτω από το σχόλιο) */}
+                  {replies.length > 0 && (
+                    <div className="flex flex-col gap-2 pl-6 border-l-2 border-movie-accent/30 ml-4 my-1">
+                      {replies.map((reply) => (
+                        <div
+                          key={reply._id}
+                          className="bg-movie-bg/80 border border-movie-border/30 p-2.5 rounded-xl flex gap-2.5 shadow-inner"
+                        >
+                          <img
+                            src={ProfPic}
+                            className="w-6 h-6 rounded-full object-cover shrink-0 opacity-80"
+                            alt="avatar"
+                          />
+                          <div className="flex flex-col flex-1 min-w-0">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-semibold text-white/90">
+                                @{reply.user?.username || "Anonymous"}
+                              </span>
+                              <span className="text-[9px] text-movie-text-sec/40">
+                                {new Date(reply.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+
+                            {/* Εμφάνιση του @tag αυτού στον οποίο πήγε η απάντηση */}
+                            <p className="text-xs text-movie-text-sec/90 mt-1 break-words leading-relaxed">
+                              <span className="text-movie-accent font-bold mr-1.5 bg-movie-accent/10 px-1 py-0.5 rounded">
+                                @
+                                {reply.parent === comment._id
+                                  ? comment.user?.username
+                                  : comment.replies?.find(
+                                      (r) => r._id === reply.parent,
+                                    )?.user?.username || comment.user?.username}
+                              </span>
+                              {reply.content}
+                            </p>
+
+                            {/* 🟢 Νέο κουμπί Reply ΜΕΣΑ στο reply - Στοχεύει το reply, αλλά στέλνει το ID του comment */}
+                            <button
+                              onClick={() =>
+                                handleReplyClick(reply, comment._id)
+                              }
+                              className="text-[10px] text-movie-text-sec/60 hover:text-movie-accent hover:underline mt-1.5 w-fit font-medium flex items-center gap-0.5 cursor-pointer"
+                            >
+                              ↩️ Reply
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* FOOTER FORM */}
         <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-3 pt-4 border-t border-movie-border/40 mt-4 shrink-0"
+          onSubmit={handleSubmitComment}
+          className="p-4 border-t border-movie-border/40 bg-movie-bg/80 flex flex-col gap-2 rounded-b-xl"
         >
-          <span className="text-xs font-bold uppercase tracking-wider text-movie-text-sec/80 px-0.5">
-            Add your comment
-          </span>
-
-          <div className="flex gap-3 items-start w-full">
-            <img
-              src={ProfPic}
-              alt="User profile"
-              className="w-9 h-9 border border-movie-accent/30 rounded-full object-cover shrink-0 mt-1"
-            />
-            <div className="flex-1">
-              <textarea
-                placeholder="Write your thoughts about this review..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                rows={3}
-                className="w-full bg-movie-surface/40 border border-movie-border/80 rounded-md p-3 text-sm text-white placeholder-movie-text-sec/40 focus:outline-none focus:ring-2 focus:ring-movie-accent/50 focus:border-movie-accent resize-none transition-all leading-relaxed"
-              />
+          {replyToComment && (
+            <div className="flex justify-between items-center bg-movie-accent/10 px-3 py-1.5 rounded-lg text-xs text-movie-accent border border-movie-accent/20">
+              <span>
+                Replying to <b>@{replyToComment.user?.username || "user"}</b>
+              </span>
+              <button
+                type="button"
+                onClick={handleCancelReply}
+                className="hover:text-white font-bold cursor-pointer"
+              >
+                ✕
+              </button>
             </div>
-          </div>
-
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full mt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full sm:w-auto inline-flex justify-center items-center rounded-md border border-movie-border/80 bg-transparent px-4 py-2 text-sm font-medium text-movie-text-sec hover:bg-movie-surface hover:text-white transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
+          )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder={
+                replyToComment
+                  ? `Write a reply to @${replyToComment.user?.username}...`
+                  : "Write a comment..."
+              }
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="flex-1 bg-movie-surface/40 border border-movie-border/60 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-movie-accent"
+            />
             <button
               type="submit"
-              disabled={!commentText.trim()}
-              className="w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-movie-accent text-white font-semibold text-sm px-5 py-2 hover:bg-opacity-90 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer shadow-sm active:scale-98"
+              disabled={loading || !newComment.trim()}
+              className="bg-movie-accent text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 disabled:opacity-40 cursor-pointer"
             >
-              Post Comment
+              {replyToComment ? "Reply" : "Send"}
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  );
-}
-
-interface ReviewSectionProps {
-  review: Review;
-}
-
-function ReviewSection({ review }: ReviewSectionProps) {
-  return (
-    <div className="flex gap-4 items-start w-full bg-movie-surface/20 border border-movie-border/40 p-4 rounded-xl">
-      <img
-        src={MoviePoster}
-        alt="Movie poster"
-        className="w-20 h-28 object-cover rounded-md shadow-md shrink-0 border border-movie-border"
-      />
-
-      <div className="flex flex-col gap-2 grow min-w-0">
-        <div className="flex justify-between items-start w-full">
-          <span className="text-sm font-semibold text-movie-text-sec">
-            <span className="text-white font-bold">@{review.username}</span>{" "}
-            reviewed this
-          </span>
-          <div className="flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">
-            <span>★</span>
-            <span className="text-white">{review.rating}/5</span>
-          </div>
-        </div>
-
-        <p className="text-sm text-movie-text-sec/80 italic leading-relaxed line-clamp-3">
-          "{review.reviewText}"
-        </p>
-
-        <button
-          type="button"
-          className="hover:underline cursor-pointer text-movie-accent text-xs font-medium w-fit mt-0.5"
-        >
-          Read More
-        </button>
       </div>
     </div>
   );
