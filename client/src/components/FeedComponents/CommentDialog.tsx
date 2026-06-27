@@ -65,10 +65,9 @@ export default function CommentDialog({
 
   if (!isOpen) return null;
 
-  // 🟢 Συνάρτηση για όταν πατάμε Reply (είτε σε Root σχόλιο είτε σε Reply)
   const handleReplyClick = (targetComment: Comment, rootCommentId: string) => {
-    setReplyToComment(targetComment); // Για να δείξουμε "@username" στο input
-    setActualParentId(rootCommentId); // Πάντα το ID του αρχικού σχολίου για το backend
+    setReplyToComment(targetComment);
+    setActualParentId(rootCommentId);
   };
 
   const handleCancelReply = () => {
@@ -90,7 +89,7 @@ export default function CommentDialog({
           credentials: "include",
           body: JSON.stringify({
             content: newComment.trim(),
-            parent: actualParentId, // 🟢 Στέλνει το ID του root σχολίου (ή null αν είναι νέο σχόλιο)
+            parent: actualParentId, //
           }),
         },
       );

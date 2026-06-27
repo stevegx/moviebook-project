@@ -10,6 +10,9 @@ import MainLayout from "./components/Layouts/MainLayout";
 import NavBarLayout from "./components/Layouts/NavBarLayout";
 import LandingPage from "./pages/LandingPage";
 import MoviePage from "./pages/MoviePage";
+import TeamPage from "./pages/TeamPage";
+import MyReviews from "./pages/MyReviews";
+import AboutUs from "./pages/AboutUs";
 import { AuthProvider } from "./components/providers/AuthContext";
 function App() {
   return (
@@ -72,12 +75,43 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/movies/:id"
             element={
               <ProtectedRoute>
                 <MainLayout>
                   <MoviePage />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/team"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <TeamPage />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/myreviews"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <MyReviews />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/aboutus"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <AboutUs />
                 </MainLayout>
               </ProtectedRoute>
             }

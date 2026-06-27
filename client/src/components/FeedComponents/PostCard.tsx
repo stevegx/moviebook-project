@@ -3,6 +3,7 @@ import ProfPic from "../../Assets/ProfPic.png";
 import MoviePosterFallback from "../../Assets/MoviePoster3.jpg";
 import CommentDialog from "./CommentDialog";
 import { useAuth } from "../providers/AuthContext";
+import { Link } from "react-router-dom";
 interface PostCardProps {
   review: {
     id?: string;
@@ -12,7 +13,7 @@ interface PostCardProps {
     content: string;
     createdAt: string;
     user?: {
-      _id?: string; // 🟢 Χρειαζόμαστε το ID του user για να δούμε αν έχει κάνει like
+      _id?: string;
       username: string;
       avatar?: string;
     };
@@ -26,12 +27,12 @@ interface MovieDetails {
 
 interface LikeData {
   _id: string;
-  user: string | { _id: string }; // Μπορεί να είναι string ID ή populated object
+  user: string | { _id: string };
 }
 
 export default function PostCard({ review }: PostCardProps) {
   const [likeCount, setLikeCount] = useState<number>(0);
-  const [userLikeId, setUserLikeId] = useState<string | null>(null); // 🟢 Κρατάει το ID του like αν έχει κάνει ο χρήστης
+  const [userLikeId, setUserLikeId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
@@ -180,13 +181,17 @@ export default function PostCard({ review }: PostCardProps) {
             className="w-10 h-10 border border-movie-accent/40 rounded-full object-cover shrink-0"
           />
           <h2 className="text-sm md:text-base font-medium text-movie-text-sec">
-            <span className="text-white font-semibold hover:text-movie-accent cursor-pointer transition-colors duration-200">
+            {/* LINK ΓΙΑ ΤΟ PROFILE */}
+            <div className="text-white font-semibold hover:text-movie-accent cursor-pointer transition-colors duration-200 inline-block">
               @{displayUsername}
-            </span>{" "}
-            reviewed{" "}
-            <span className="text-movie-accent font-bold italic hover:underline cursor-pointer">
+            </div>{" "}
+            reviewed {/* LINK ΓΙΑ ΤΗ ΣΕΛΙΔΑ ΤΗΣ ΤΑΙΝΙΑΣ */}
+            <Link
+              to={`/movies/${review?.movie_id}`}
+              className="text-movie-accent font-bold italic hover:underline cursor-pointer inline-block"
+            >
               {displayMovieTitle}
-            </span>
+            </Link>
           </h2>
         </div>
         <span className="text-xs text-movie-text-sec shrink-0">
@@ -196,14 +201,20 @@ export default function PostCard({ review }: PostCardProps) {
 
       {/* MIDDLE ROW */}
       <div className="flex gap-4 items-start w-full">
-        <img
-          src={posterUrl}
-          alt={displayMovieTitle}
-          className="w-24 h-36 object-cover rounded-md shadow-md shrink-0 border border-movie-border"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = MoviePosterFallback;
-          }}
-        />
+        <Link
+          to={`/movies/${review?.movie_id}`}
+          className="text-movie-accent font-bold italic hover:underline cursor-pointer inline-block"
+        >
+          {" "}
+          <img
+            src={posterUrl}
+            alt={displayMovieTitle}
+            className="w-24 h-36 object-cover rounded-md shadow-md shrink-0 border border-movie-border"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = MoviePosterFallback;
+            }}
+          />
+        </Link>
 
         <div className="flex flex-col gap-2 grow min-w-0">
           <div className="flex items-center gap-1 text-sm font-semibold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded w-fit">
