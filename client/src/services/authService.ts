@@ -48,24 +48,46 @@ export const login = async (credentials: {
   }
 };
 
-export const user = async (updatedData?: {name: string; username: string; email: string}) => {
+export const user = async () => {
   try {
-    const method = updatedData ? "POST" : "GET";
-
     const response = await fetch(`${API_URL}/me`, {
-      method: method,
+      method: "GET",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
       },
-      body: updatedData ? JSON.stringify(updatedData) : undefined,
     });
 
     const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data?.message || "Credential failed");
+    }
+
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const updateProfile = async (userId: any, updatedData: {name: string; username: string; email: string}) => {
+  try {
+    const response = await fetch(`http://localhost:8000/api/user`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.message || "Failed to update profile info");
     }
 
     return data;

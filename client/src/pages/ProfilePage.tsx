@@ -1,5 +1,5 @@
 import { FaUserCircle } from "react-icons/fa";
-import { user as getprofile } from "../services/authService";
+import { user as getprofile, updateProfile } from "../services/authService";
 import { useEffect, useState } from "react";
 import EditProfileModal from "../components/EditProfileModal";
 
@@ -53,7 +53,14 @@ function ProfilePage() {
 
   const handleSaveChanges = async (updatedUser: UserProfile) => {
     try {
-      const savedUserFromServer = await getprofile(updatedUser);
+      const userId = (user as any)?.id || (user as any)?._id;
+      if (!userId) {
+        alert("User ID not found!");
+        return;
+      }
+
+      const savedUserFromServer = await updateProfile(userId, updatedUser);
+
       setUser(savedUserFromServer);
       const savedString = localStorage.getItem("currentUser");
 
