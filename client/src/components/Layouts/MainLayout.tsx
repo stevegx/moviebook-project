@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
-import { user } from "@/services/auth";
+import { useLocation } from "react-router-dom";
+import { user } from "../../services/authService";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface LayoutProps {
 function MainLayout({ children }: LayoutProps) {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const location = useLocation();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -21,7 +23,7 @@ function MainLayout({ children }: LayoutProps) {
       }
     };
     checkUser();
-  }, []);
+  }, [location.pathname]);
 
   const handleLogoutSuccess = () => {
     setCurrentUser(null);
@@ -40,7 +42,10 @@ function MainLayout({ children }: LayoutProps) {
       <main className="grow">
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            return React.cloneElement(child, { searchQuery } as any);
+            return React.cloneElement(child, {
+              searchQuery,
+              currentUser,
+            } as any);
           }
           return child;
         })}

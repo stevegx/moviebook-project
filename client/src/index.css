@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @theme {
-  --color-movie-bg: #14181c;
-  --color-movie-surface: #1c252d;
+  --color-movie-bg: #070b14;
+  --color-movie-surface: #0d1525;
   --color-movie-accent: #14b2d6;
   --color-movie-text-main: #ffffff;
   --color-movie-text-sec: #99aab5;

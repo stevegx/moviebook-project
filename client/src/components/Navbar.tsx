@@ -1,15 +1,18 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaUserCircle,
+  FaSignOutAlt,
   FaCog,
   FaHeart,
   FaList,
   FaStar,
   FaUser,
+  FaSearch,
 } from "react-icons/fa";
-import { user, logout } from "@/services/auth";
+import { user, logout } from "../services/authService";
 import LogoutButton from "./LogoutButton";
+import AuthModal from "./AuthModal";
 
 interface NavbarProps {
   isLoggedIn: boolean;
@@ -28,6 +31,7 @@ function Navbar({
 }: NavbarProps) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,10 +50,18 @@ function Navbar({
     };
   }, []);
 
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchQuery.trim() !== "") {
+      navigate(`/home?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
   return (
-    <nav className="w-full bg-movie-surface border-b border-gray-800 px-6 py-4 flex justify-between items-center shadow-lg">
+    <nav className="w-full sticky top-0 z-50 bg-movie-surface border-b border-gray-800 px-6 py-4 flex justify-between items-center shadow-lg">
+      {" "}
       <h1
-        className="text-2xl font-bold font-display text-movie-accent tracking-wide cursor-pointer select-none"
+        className="text-3xl font-bold font-display text-movie-accent tracking-wide cursor-pointer select-none"
         onClick={() => {
           setIsDropdownOpen(false);
           navigate(isLoggedIn ? "/home" : "/");
@@ -57,8 +69,54 @@ function Navbar({
       >
         MovieBook
       </h1>
+      <div className="flex items-center flex-1 justify-center">
+        {/* Search Bar */}
+        <form
+          onSubmit={handleSearchSubmit}
+          className="flex-1 flex justify-center px-8"
+        >
+          <div className="relative w-1/2">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <FaSearch />
+            </div>
+            <input
+              type="text"
+              placeholder="Search movies..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                navigate(`/home?search=${encodeURIComponent(e.target.value)}`);
+              }}
+              className="w-full h-10 pl-10 pr-5 bg-movie-surface text-white border-2 border-movie-accent rounded-xl text-center outline-none focus:ring-2 focus:ring-movie-accent/50 transition-all"
+            />
+          </div>
+        </form>
 
-      <div className="flex items-center">
+        <button
+          onClick={() => {
+            setIsDropdownOpen(false);
+            setSearchQuery("");
+            navigate(isLoggedIn ? "/home" : "/");
+          }}
+          className="text-lg font-medium text-movie-text-main hover:text-movie-accent transition-colors cursor-pointer mr-4"
+        >
+          Home
+        </button>
+
+        <button
+          onClick={() => {
+            setIsDropdownOpen(false);
+            if (isLoggedIn) {
+              navigate("/feed");
+            } else {
+              setIsAuthModalOpen(true);
+            }
+          }}
+          className="text-lg font-medium text-movie-text-main hover:text-movie-accent transition-colors cursor-pointer mr-5"
+        >
+          Feed
+        </button>
+
         {/* αν δεν είναι συνδεδεμένος */}
         {!isLoggedIn && (
           <>
@@ -67,7 +125,7 @@ function Navbar({
                 setIsDropdownOpen(false);
                 navigate("/login");
               }}
-              className="px-4 py-2 text-sm text-movie-text-main hover:text-movie-accent transition-colors cursor-pointer"
+              className="px-4 py-2 text-sm text-movie-text-main hover:text-movie-accent transition-colors font-bold cursor-pointer"
             >
               Login
             </button>
@@ -86,36 +144,6 @@ function Navbar({
         {/* αν είναι συνδεδεμένος */}
         {isLoggedIn && (
           <>
-            {/* Search Bar */}
-            <div className=" px-4 flex justify-center ">
-              <input
-                type="text"
-                placeholder="Search movies..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full max-w-3xl h-14 px-5 bg-movie-surface text-white border-2 border-movie-accent rounded-xl text-center outline-none focus:ring-2 focus:ring-movie-accent/50 transition-all"
-              />
-            </div>
-
-            <button
-              onClick={() => {
-                setIsDropdownOpen(false);
-                navigate("/home");
-              }}
-              className="text-sm font-medium text-movie-text-main hover:text-movie-accent transition-colors cursor-pointer mr-4"
-            >
-              Home
-            </button>
-            <button
-              onClick={() => {
-                setIsDropdownOpen(false);
-                navigate("/feed");
-              }}
-              className="text-sm font-medium text-movie-text-main hover:text-movie-accent transition-colors cursor-pointer mr-5"
-            >
-              Feed
-            </button>
-
             <LogoutButton onLogoutSuccess={onLogout} />
 
             <div className="relative" ref={dropdownRef}>
@@ -178,7 +206,7 @@ function Navbar({
                   <button
                     onClick={() => {
                       setIsDropdownOpen(false);
-                      navigate("/myreviews");
+                      navigate("/my-reviews");
                     }}
                     className="flex items-center space-x-3 px-4 py-2.5 text-movie-text-main hover:bg-movie-bg hover:text-movie-accent transition-colors text-left w-full"
                   >
@@ -202,6 +230,10 @@ function Navbar({
           </>
         )}
       </div>
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </nav>
   );
 }

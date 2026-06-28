@@ -8,7 +8,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import FeedPage from "./pages/FeedPage";
 import MainLayout from "./components/Layouts/MainLayout";
 import NavBarLayout from "./components/Layouts/NavBarLayout";
-import LandingPage from "./pages/LandingPage";
 import MoviePage from "./pages/MoviePage";
 import TeamPage from "./pages/TeamPage";
 import MyReviews from "./pages/MyReviews";
