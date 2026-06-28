@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import MovieGallery from "../components/moviePageComponents/movieGallery";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
 interface CastMember {
   id: number;
   name: string;
@@ -25,9 +27,7 @@ export default function MoviePage() {
     async function getMovie(movieId: string | undefined) {
       if (!movieId) return;
       try {
-        const response = await fetch(
-          "http://localhost:8000/api/movies/" + movieId,
-        );
+        const response = await fetch(`${API_URL}/movies/${movieId}`);
         if (!response.ok) throw new Error("Failed");
         const data = await response.json();
         setMovie(data);
@@ -39,9 +39,7 @@ export default function MoviePage() {
     async function getCredits() {
       if (!id) return;
       try {
-        const response = await fetch(
-          `http://localhost:8000/api/movies/${id}/credits`,
-        );
+        const response = await fetch(`${API_URL}/movies/${id}/credits`);
         const data = await response.json();
         setCastData(data.cast?.slice(0, 12) || []);
         setCrewData(data.crew?.[0] || null);

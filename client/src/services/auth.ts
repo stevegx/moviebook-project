@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/api/auth";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 export const register = async (credentials: {
   name: string;
@@ -8,8 +8,9 @@ export const register = async (credentials: {
   password_confirmation: string;
 }) => {
   try {
-    const response = await fetch(`${API_URL}/register`, {
+    const response = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -30,7 +31,7 @@ export const login = async (credentials: {
   password: string;
 }) => {
   try {
-    const response = await fetch(`${API_URL}/login`, {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -48,16 +49,20 @@ export const login = async (credentials: {
   }
 };
 
-export const user = async (updatedData?: {name: string; username: string; email: string}) => {
+export const user = async (updatedData?: {
+  name: string;
+  username: string;
+  email: string;
+}) => {
   try {
     const method = updatedData ? "POST" : "GET";
 
-    const response = await fetch(`${API_URL}/me`, {
+    const response = await fetch(`${API_URL}/user`, {
       method: method,
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json",
+        Accept: "application/json",
       },
       body: updatedData ? JSON.stringify(updatedData) : undefined,
     });
@@ -77,7 +82,7 @@ export const user = async (updatedData?: {name: string; username: string; email:
 
 export const logout = async () => {
   try {
-    const response = await fetch(`${API_URL}/logout`, {
+    const response = await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
       headers: {

@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
-import ProfPic from "../../Assets/ProfPic.png";
-import movieImage from "../../Assets/MoviePoster1.jpg";
+import { useState, useEffect } from "react";
+import ProfPic from "@/assets/ProfPic.png";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
 interface ReviewDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onReviewSubmit: (review: {
-    movieTitle: string;
-    rating: number;
-    reviewText: string;
-  }) => void;
+  onReviewSubmit: (newReview?: any) => void;
 }
 
 export default function ReviewDialog({
@@ -23,36 +21,71 @@ export default function ReviewDialog({
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewText, setReviewText] = useState<string>("");
   const [movie, setMovie] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onReviewSubmit({
-      movieTitle: selectedMovie,
+
+    const reviewData = {
+      movie_id: selectedMovie,
       rating: rating,
-      reviewText: reviewText,
-    });
-    setMovieSearch("");
-    setSelectedMovie("");
-    setRating(0);
-    setReviewText("");
-    onClose();
+      content: reviewText,
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/feeds`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(reviewData),
+      });
+
+      if (!response.ok) throw new Error("Failed to post");
+
+      const createdReview = await response.json();
+
+      // 1. Καθαρισμός της φόρμας
+      setMovieSearch("");
+      setSelectedMovie("");
+      setRating(0);
+      setReviewText("");
+
+      if (typeof onReviewSubmit === "function") {
+        onReviewSubmit(createdReview);
+      }
+      onClose();
+    } catch (error) {
+      console.error("Error posting review:", error);
+    }
   };
 
   const searchMovies = async (movieSearch: string) => {
     if (!movieSearch) return;
-    setLoading(true);
+
     try {
       const response = await fetch(
-        `http://localhost:8000/api/movies/search?query=${encodeURIComponent(movieSearch)}&page=1`,
+        `${API_URL}/movies/search?query=${encodeURIComponent(movieSearch)}&page=1&_t=${Date.now()}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-type": "application/json",
+          },
+        },
       );
       if (!response.ok) throw new Error("Network response not ok");
-      const data = await response.json();
-      setMovie(data.results || []);
+      const resBody = await response.json();
+
+      if (resBody && Array.isArray(resBody.data)) {
+        setMovie(resBody.data);
+      } else if (Array.isArray(resBody)) {
+        setMovie(resBody);
+      } else {
+        setMovie(resBody.results || []);
+      }
     } catch (error) {
       console.error("Failed to search", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -64,13 +97,15 @@ export default function ReviewDialog({
     }, 500);
     return () => clearTimeout(delayDebounce);
   }, [movieSearch]);
+
   if (!isOpen) return null;
-  console.log("eimai to movie search: ", movie);
-  const handleSelectMovie = (movie: string) => {
-    setSelectedMovie(movie);
-    setMovieSearch(movie);
+
+  const handleSelectMovie = (title: string, id: string) => {
+    setSelectedMovie(id);
+    setMovieSearch(title);
     setShowDropdown(false);
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       <div
@@ -85,7 +120,6 @@ export default function ReviewDialog({
           ✕<span className="sr-only">Close</span>
         </button>
 
-        {/* DIALOG HEADER */}
         <div className="flex flex-col space-y-1.5 text-center sm:text-left mb-6">
           <h2 className="text-lg font-semibold text-white leading-none tracking-tight">
             Create New Review
@@ -116,18 +150,18 @@ export default function ReviewDialog({
                 onFocus={() => setShowDropdown(true)}
                 className="w-full bg-movie-surface/40 border border-movie-border/80 rounded-md px-3 py-2 text-sm text-white placeholder-movie-text-sec/40 focus:outline-none focus:ring-2 focus:ring-movie-accent/50 focus:border-movie-accent transition-all"
               />
-              {/*εδω θα χρειαστει GET request*/}
               {showDropdown && movieSearch && movie.length > 0 && (
                 <ul className="absolute left-0 right-0 top-11 bg-movie-bg border border-movie-border/80 rounded-md shadow-xl z-50 max-h-40 overflow-y-auto p-1">
-                  {movie.map((movieItem, index) => (
+                  {movie.map((movieItem) => (
                     <li
-                      key={index}
+                      key={movieItem.id}
                       onClick={() =>
                         handleSelectMovie(
                           `${movieItem.original_title} (${new Date(movieItem.release_date).getFullYear()})`,
+                          movieItem.id.toString(),
                         )
                       }
-                      className="px-3 py-2 text-sm  hover:bg-movie-surface hover:text-white rounded-sm cursor-pointer transition-colors"
+                      className="px-3 py-2 text-sm hover:bg-movie-surface hover:text-white rounded-sm cursor-pointer transition-colors"
                     >
                       <div className="flex gap-4">
                         <img
@@ -151,7 +185,6 @@ export default function ReviewDialog({
             </div>
           </div>
 
-          {/* Rating */}
           <div className="flex items-center gap-3 px-1 mt-1">
             <span className="text-xs font-medium text-movie-text-sec/80 tracking-wide">
               Rating
@@ -202,7 +235,6 @@ export default function ReviewDialog({
             >
               Cancel
             </button>
-            {/*εδω θα χρειαστει Post request*/}
             <button
               type="submit"
               disabled={!selectedMovie || rating === 0 || !reviewText.trim()}

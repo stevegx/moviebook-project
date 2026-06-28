@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import ProfPic from "../../Assets/ProfPic.png";
-import MoviePoster1 from "../../Assets/MoviePoster1.jpg";
-import MoviePoster2 from "../../Assets/MoviePoster2.jpg";
+import { useState } from "react";
+import ProfPic from "@/assets/ProfPic.png";
+
 import MovieGallery from "../moviePageComponents/movieGallery";
 interface Movie {
   id: string;

@@ -1,8 +1,8 @@
-import type { Request, Response } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 import { FeedLike } from '@/lib/database/schema'
 
 class Controller {
-  async index(req: Request, res: Response) {
+  async index(req: Request, res: Response, next: NextFunction) {
     try {
       const likes = await FeedLike
         .find({ feed: req.params.feed as string })
@@ -11,48 +11,51 @@ class Controller {
 
       return res.json(likes)
     } catch (error) {
-      return res.status(500).json({ error })
+      next(error)
     }
   }
 
-  async show(req: Request, res: Response) {
+  async show(req: Request, res: Response, next: NextFunction) {
     try {
-      const likes = await FeedLike
-        .find({ feed: req.params.feed as string })
-        .populate('user', '-password')
-        .lean()
+      const count = await FeedLike.countDocuments({
+        feed: req.params.feed as string,
+      })
 
-      return res.json(likes.length)
+      return res.json(count)
     } catch (error) {
-      return res.status(500).json({ error })
+      next(error)
     }
   }
 
-  async store(req: Request, res: Response) {
+  async store(req: Request, res: Response, next: NextFunction) {
     try {
-      const like = await FeedLike.create({ user: req.user.id, feed: req.params.feed as string })
+      const like = await FeedLike.create({
+        user: req.user.id,
+        feed: req.params.feed as string,
+      })
+      
       const populatedLike = await like.populate('user', '-password')
 
       return res.status(201).json(populatedLike)
     } catch (error) {
-      return res.status(500).json({ error })
+      next(error)
     }
   }
 
-  async destroy(req: Request, res: Response) {
+  async destroy(req: Request, res: Response, next: NextFunction) {
     try {
       const like = await FeedLike
-        .findByIdAndDelete(req.params.id)
+      .findByIdAndDelete(req.params.id)
         .populate('user', '-password')
         .lean()
 
       if (!like) {
-        return res.status(404).json({ message: "Like not found" })
+        return res.status(404).json({ message: 'Like not found' })
       }
 
       return res.json(like)
     } catch (error) {
-      return res.status(500).json({ error })
+      next(error)
     }
   }
 }
