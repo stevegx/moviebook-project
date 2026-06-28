@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import MovieGallery from "../components/moviePageComponents/movieGallery";
-
+import { Link } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 interface CastMember {
@@ -88,6 +88,14 @@ export default function MoviePage() {
             <span className="font-bold text-yellow-500">
               {movie.vote_average.toFixed(1)} ⭐
             </span>
+          </div>
+          <div className="mt-3">
+            <Link
+              to={`/watchmovie/${id}`} // <-- Σωστό dynamic path με backticks
+              className="bg-movie-highlight/90 font-bold text-movie-text-main p-2 rounded-lg cursor-pointer hover:bg-movie-highlight/80 active:bg-movie-highlight/60 inline-block"
+            >
+              Watch movie
+            </Link>
           </div>
         </div>
       </section>
