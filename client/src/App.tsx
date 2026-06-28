@@ -30,7 +30,7 @@ function App() {
                     </div>
                   }
                 >
-                  <LandingPage />
+                  <HomePage />
                 </Suspense>
               </MainLayout>
             }

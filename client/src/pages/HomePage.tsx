@@ -1,9 +1,9 @@
-import React, { useState, useEffect, use } from "react";
+import { useState, useEffect, use } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import HeroBanner from "../components/HeroBanner";
 import MovieSection from "../components/MovieSection";
-import { user } from "../services/authService";
-
+import { useAuth } from "../components/providers/AuthContext"; // 🔥 Χρήση του Global Auth
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 const safeFetchMovies = (url: string) =>
   fetch(url)
     .then((res) => {
@@ -23,6 +23,11 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 🔥 Παίρνουμε τον έτοιμο χρήστη από το Context χωρίς manual API calls
+  const { user: authUser } = useAuth();
+  const currentUser = (authUser as any)?.user || authUser;
+  const isLoggedIn = !!currentUser;
+
   const popularData = use(popularPromise);
   const topRatedData = use(topRatedPromise);
   const trending = popularData.results || [];
@@ -33,27 +38,6 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
   const topRated = topRatedData.results || [];
   const [currentTrendingPage, setCurrentTrendingPage] = useState(0);
   const moviesPerPage = 5;
-
-  const [localUser, setLocalUser] = useState<any>(null);
-
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const data = await user();
-        const userData = data?.user || data;
-        setLocalUser(userData ?? null);
-      } catch (err) {
-        setLocalUser(null);
-      }
-    }
-    checkAuth();
-    window.addEventListener("authChange", checkAuth);
-    return () => {
-      window.removeEventListener("authChange", checkAuth);
-    };
-  }, [location.pathname]);
-
-  const isLoggedIn = localUser !== null;
 
   const [searchParams] = useSearchParams();
   const urlSearchQuery = searchParams.get("search") || "";
@@ -167,7 +151,7 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
                           trending.length
                         }
                         onClick={() =>
-                          setCurrentTrendingPage((prev) => prev + 1)
+                          setCurrentTrendingPage((prev) => prev - 1 + 2)
                         }
                         className={`text-sm font-semibold transition-colors focus:outline-none ${
                           (currentTrendingPage + 1) * moviesPerPage >=

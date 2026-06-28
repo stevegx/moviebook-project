@@ -1,38 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "../Navbar";
-import { user } from "../../services/authService";
-import { useLocation } from "react-router-dom";
+import { useAuth } from "../providers/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 function NavBarLayout({ children }: LayoutProps) {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const { user: authUser, setUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const location = useLocation();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const data = await user();
-        setCurrentUser(data);
-      } catch (error) {
-        setCurrentUser(null);
-      }
-    };
-    checkUser();
-  }, [location.pathname]);
+  const currentUser = (authUser as any)?.user || authUser;
+  const isLoggedIn = !!currentUser;
 
   const handleLogoutSuccess = () => {
-    setCurrentUser(null);
+    setUser(null);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-movie-bg">
       <Navbar
         currentUser={currentUser}
-        isLoggedIn={!!currentUser}
+        isLoggedIn={isLoggedIn}
         onLogout={handleLogoutSuccess}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
