@@ -1,11 +1,38 @@
-import {logout} from "../services/authService"
+import { useNavigate } from "react-router-dom";
+import { logout } from "../services/authService";
+import { FaSignOutAlt } from "react-icons/fa";
 
-async function LogoutButton() {
-  return (
-    <button onClick={logout} className="flex items-center space-x-3 px-4 py-2.5 text-[#eb5959] hover:bg-movie-bg font-medium transition-colors text-left w-full">
-      Logout
-    </button>
-  )
+interface LogoutProp {
+  onLogoutSuccess: () => void;
+  className?: string;
 }
 
-export default LogoutButton
+
+function LogoutButton({onLogoutSuccess, className}: LogoutProp) {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout(); 
+      window.dispatchEvent(new Event("authChange"));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      onLogoutSuccess();
+      navigate("/");
+    }
+
+  };
+
+  return (
+    <button 
+      onClick={handleLogout} 
+      className={className || "text-lg font-medium text-red-500 hover:text-red-400 transition-colors cursor-pointer mr-5 focus:outline-none"}
+    >
+      <FaSignOutAlt />
+      <span>Logout</span>
+    </button>
+  );
+}
+
+export default LogoutButton;
