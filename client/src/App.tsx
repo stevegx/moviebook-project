@@ -14,6 +14,7 @@ import TeamPage from "./pages/TeamPage";
 import MyReviews from "./pages/MyReviews";
 import AboutUs from "./pages/AboutUs";
 import { AuthProvider } from "./components/providers/AuthContext";
+import WatchMovie from "./pages/WatchMovie";
 function App() {
   return (
     <AuthProvider>
@@ -112,6 +113,16 @@ function App() {
               <ProtectedRoute>
                 <MainLayout>
                   <AboutUs />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/watchmovie/:id"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <WatchMovie />
                 </MainLayout>
               </ProtectedRoute>
             }
