@@ -1,16 +1,16 @@
 interface TeamMember {
   name: string;
-  role: string;
+  role?: string;
 }
 
 export default function TeamPage() {
-  const frontEnd: TeamMember[] = [
+  const frontend: TeamMember[] = [
     { name: "Stauros Vetsikas" },
     { name: "Eleni Zagora" },
     { name: "Vasiliki Papantonopoulou" },
   ];
 
-  const backEnd: TeamMember[] = [
+  const backend: TeamMember[] = [
     { name: "Prodromos Pantos" },
     { name: "Stelios Metaxas" },
     { name: "Giwrgos Sarafas" },
@@ -39,7 +39,6 @@ export default function TeamPage() {
         </header>
 
         <main className="grid md:grid-cols-2 gap-12 lg:gap-16">
-          {/* FRONT END TEAM */}
           <section className="group">
             <div className="flex items-center gap-3 mb-8 border-b border-gray-800 pb-4">
               <span className="text-2xl">🎬</span>
@@ -52,7 +51,7 @@ export default function TeamPage() {
             </div>
 
             <div className="space-y-4">
-              {frontEnd.map((member, idx) => (
+              {frontend.map((member, idx) => (
                 <div
                   key={idx}
                   className="p-5 rounded-xl bg-linear-to-r from-white/2 to-transparent border border-white/5 hover:border-movie-accent/40 hover:from-movie-accent/2 transition-all duration-300 group/item backdrop-blur-md shadow-2xl"
@@ -65,7 +64,6 @@ export default function TeamPage() {
             </div>
           </section>
 
-          {/* BACK END TEAM */}
           <section className="group">
             <div className="flex items-center gap-3 mb-8 border-b border-gray-800 pb-4">
               <span className="text-2xl">🎛️</span>
@@ -78,7 +76,7 @@ export default function TeamPage() {
             </div>
 
             <div className="space-y-4">
-              {backEnd.map((member, idx) => (
+              {backend.map((member, idx) => (
                 <div
                   key={idx}
                   className="p-5 rounded-xl bg-linear-to-r from-white/2 to-transparent border border-white/5 hover:border-blue-500/40 hover:from-blue-500/2 transition-all duration-300 group/item backdrop-blur-md shadow-2xl"
@@ -92,7 +90,6 @@ export default function TeamPage() {
           </section>
         </main>
 
-        {/* Footer Credits Roll */}
         <footer className="mt-24 text-center">
           <div className="text-[10px] uppercase tracking-[0.5em] text-gray-600 font-mono">
             © 2026 MovieBook Inc. All Production Rights Reserved.

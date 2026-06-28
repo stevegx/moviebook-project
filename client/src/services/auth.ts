@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 export const register = async (credentials: {
   name: string;
@@ -10,6 +10,7 @@ export const register = async (credentials: {
   try {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },

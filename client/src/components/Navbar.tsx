@@ -1,15 +1,14 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaUserCircle,
-  FaSignOutAlt,
   FaCog,
   FaHeart,
   FaList,
   FaStar,
   FaUser,
 } from "react-icons/fa";
-import { user, logout } from "../services/authService";
+import { user, logout } from "@/services/auth";
 import LogoutButton from "./LogoutButton";
 
 interface NavbarProps {

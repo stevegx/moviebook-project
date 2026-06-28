@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
 interface MovieGalleryProps {
   category: string;
   currentMovieId?: string;
@@ -23,17 +25,15 @@ export default function MovieGallery({
   const [movies, setMovies] = useState<Movie[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // States για το drag-to-scroll
   const [isDown, setIsDown] = useState<boolean>(false);
   const [startX, setStartX] = useState<number>(0);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+
   useEffect(() => {
     async function getMoviesByCategory(cat: string) {
       try {
-        const response = await fetch(
-          `http://localhost:8000/api/movies/${cat}?page=1`,
-        );
+        const response = await fetch(`${API_URL}/movies/${cat}?page=1`,);
         const data = await response.json();
         setMovies(data.results || data);
       } catch (error) {
@@ -44,7 +44,6 @@ export default function MovieGallery({
     getMoviesByCategory(category);
   }, [category]);
 
-  // Λειτουργίες Drag
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDown(true);
     setIsDragging(false);
@@ -68,7 +67,7 @@ export default function MovieGallery({
   }`;
 
   const movieItemClasses = isSidebar
-    ? "flex-[0_0_50%] snap-start" // 50% πλάτος = 2 ταινίες
+    ? "flex-[0_0_50%] snap-start"
     : "flex-none";
 
   return (

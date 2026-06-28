@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import ProfPic from "../../Assets/ProfPic.png";
+import ProfPic from "@/assets/ProfPic.png";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 interface ReviewDialogProps {
   isOpen: boolean;
@@ -19,7 +21,6 @@ export default function ReviewDialog({
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewText, setReviewText] = useState<string>("");
   const [movie, setMovie] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +32,7 @@ export default function ReviewDialog({
     };
 
     try {
-      const response = await fetch(`http://localhost:8000/api/feeds`, {
+      const response = await fetch(`${API_URL}/feeds`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,10 +62,10 @@ export default function ReviewDialog({
 
   const searchMovies = async (movieSearch: string) => {
     if (!movieSearch) return;
-    setLoading(true);
+
     try {
       const response = await fetch(
-        `http://localhost:8000/api/movies/search?query=${encodeURIComponent(movieSearch)}&page=1&_t=${Date.now()}`,
+        `${API_URL}/movies/search?query=${encodeURIComponent(movieSearch)}&page=1&_t=${Date.now()}`,
         {
           method: "GET",
           credentials: "include",
@@ -85,8 +86,6 @@ export default function ReviewDialog({
       }
     } catch (error) {
       console.error("Failed to search", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -121,7 +120,6 @@ export default function ReviewDialog({
           ✕<span className="sr-only">Close</span>
         </button>
 
-        {/* DIALOG HEADER */}
         <div className="flex flex-col space-y-1.5 text-center sm:text-left mb-6">
           <h2 className="text-lg font-semibold text-white leading-none tracking-tight">
             Create New Review
@@ -187,7 +185,6 @@ export default function ReviewDialog({
             </div>
           </div>
 
-          {/* Rating */}
           <div className="flex items-center gap-3 px-1 mt-1">
             <span className="text-xs font-medium text-movie-text-sec/80 tracking-wide">
               Rating

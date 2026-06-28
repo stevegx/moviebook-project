@@ -1,7 +1,9 @@
-import React, { useEffect, useState, use } from "react";
+import { useEffect, use } from "react";
 import { useNavigate } from "react-router-dom";
-import { user } from "../services/authService"
-import MovieSection from "../components/MovieSection";
+import { user } from "@/services/auth"
+import MovieSection from "@/components/MovieSection";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const safeFetchMovies = (url: string) => 
   fetch(url)
@@ -11,7 +13,7 @@ const safeFetchMovies = (url: string) =>
     })
     .catch(() => ({ results: [] }));
 
-const popularPreviewPromise = safeFetchMovies("http://localhost:8000/api/movies/list?type=popular");
+const popularPreviewPromise = safeFetchMovies(`${API_URL}/movies/list?type=popular`);
 
 function LandingPage() {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar";
-import { user } from "../../services/authService";
+import { user } from "@/services/auth";
 
 interface LayoutProps {
   children: React.ReactNode;

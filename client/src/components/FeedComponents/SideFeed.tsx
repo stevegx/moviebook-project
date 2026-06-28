@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ProfPic from "../../Assets/ProfPic.png";
+import ProfPic from "@/assets/ProfPic.png";
 
 import MovieGallery from "../moviePageComponents/movieGallery";
 interface Movie {

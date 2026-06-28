@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ProfPic from "../../Assets/ProfPic.png";
+import ProfPic from "@/assets/ProfPic.png";
 import ReviewDialog from "./ReviewDialog";
 
 export default function PostFeed() {

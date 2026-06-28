@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
-import ProfPic from "../../Assets/ProfPic.png";
-import MoviePosterFallback from "../../Assets/MoviePoster3.jpg";
+import { useState, useEffect } from "react";
+import ProfPic from "@/assets/ProfPic.png";
+import MoviePosterFallback from "@/assets/MoviePoster3.jpg";
 import CommentDialog from "./CommentDialog";
 import { useAuth } from "../providers/AuthContext";
 import { Link } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
 interface PostCardProps {
   review: {
     id?: string;
@@ -44,7 +47,7 @@ export default function PostCard({ review }: PostCardProps) {
   const fetchLikes = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/feeds/${reviewId}/likes/all`,
+        `${API_URL}/feeds/${reviewId}/likes/all`,
         { credentials: "include" },
       );
       const data = await response.json();
@@ -74,7 +77,7 @@ export default function PostCard({ review }: PostCardProps) {
       }
       try {
         const response = await fetch(
-          `http://localhost:8000/api/movies/${review.movie_id}`,
+          `${API_URL}/movies/${review.movie_id}`,
           {
             method: "GET",
             credentials: "include",
@@ -105,7 +108,7 @@ export default function PostCard({ review }: PostCardProps) {
         console.log("Attempting to delete like with ID:", userLikeId);
 
         const response = await fetch(
-          `http://localhost:8000/api/feeds/${reviewId}/likes/${userLikeId}`,
+          `${API_URL}/feeds/${reviewId}/likes/${userLikeId}`,
           {
             method: "DELETE",
             credentials: "include",
@@ -125,7 +128,7 @@ export default function PostCard({ review }: PostCardProps) {
         console.log("Attempting to create like for feed:", reviewId);
 
         const response = await fetch(
-          `http://localhost:8000/api/feeds/${reviewId}/likes`,
+          `${API_URL}/feeds/${reviewId}/likes`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

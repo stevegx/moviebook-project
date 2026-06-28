@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login, register } from "../services/authService";
+import { login, register } from "@/services/auth";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import FormInput from "../components/FormInput";
 
@@ -65,7 +65,7 @@ function RegisterPage() {
 
   return (
     <div className="min-h-[85vh] flex flex-col justify-center items-center py-10">
-      <div className="w-[400px] bg-movie-surface rounded-lg border border-[#b4b4b4] p-[30px] shadow-xl">
+      <div className="w-100 bg-movie-surface rounded-lg border border-[#b4b4b4] p-7.5 shadow-xl">
         <h1 className="text-center mb-6 text-2xl font-bold font-display text-movie-text-main">Register</h1>
 
         <form onSubmit={handleRegister}>
@@ -118,7 +118,7 @@ function RegisterPage() {
             />
 
             <span
-              className="absolute right-[12px] bottom-[14px] cursor-pointer text-movie-text-sec"
+              className="absolute right-3 bottom-3.5 cursor-pointer text-movie-text-sec"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <FaEye /> : <FaEyeSlash />}
@@ -149,7 +149,7 @@ function RegisterPage() {
 
         </form>
 
-        <p className="mt-[30px] mb-0 text-sm">
+        <p className="mt-7.5 mb-0 text-sm">
           Already have an account?
           <Link className="inline-block ml-2 text-movie-accent text-sm no-underline" to="/login">
             Login

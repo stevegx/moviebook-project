@@ -1,7 +1,7 @@
 import { FaUserCircle } from "react-icons/fa";
-import { user as getprofile } from "../services/authService";
+import { user as getProfile } from "@/services/auth";
 import { useEffect, useState } from "react";
-import EditProfileModal from "../components/EditProfileModal";
+import EditProfileModal from "@/components/EditProfileModal";
 
 interface UserProfile {
   name: string;
@@ -25,7 +25,7 @@ function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const data = await getprofile();
+        const data = await getProfile();
         setUser(data);
         localStorage.setItem("currentUser", JSON.stringify(data));
         setError("");
@@ -53,16 +53,13 @@ function ProfilePage() {
 
   const handleSaveChanges = async (updatedUser: UserProfile) => {
     try {
-      const savedUserFromServer = await getprofile(updatedUser);
+      const savedUserFromServer = await getProfile(updatedUser);
       setUser(savedUserFromServer);
       const savedString = localStorage.getItem("currentUser");
 
       if (savedString) {
         const parsed = JSON.parse(savedString);
 
-        {
-          /* για το πως αποθηκευεται ο χρηστης στο backend */
-        }
         if (parsed.user) {
           parsed.user = savedUserFromServer;
           localStorage.setItem("currentUser", JSON.stringify(parsed));

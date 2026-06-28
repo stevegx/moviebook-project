@@ -5,16 +5,23 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { user as fetchUser } from "../../services/authService";
+import { user as getUser } from "@/services/auth";
 
-const AuthContext = createContext<any>(null);
+type AuthContextType = {
+  user: unknown;
+  setUser: React.Dispatch<React.SetStateAction<unknown>>;
+  loading: boolean;
+};
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+const AuthContext = createContext<AuthContextType | null>(null);
+AuthContext.displayName = "AuthContext";
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUser()
+    getUser()
       .then((data) => setUser(data))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
@@ -25,6 +32,14 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+
+  return context;
+}

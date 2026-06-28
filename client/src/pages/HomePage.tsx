@@ -1,8 +1,10 @@
 import { useState, useEffect, use } from "react";
-import HeroBanner from "../components/HeroBanner";
-import MovieSection from "../components/MovieSection";
-import { user } from "../services/authService";
-import MovieGallery from "../components/moviePageComponents/movieGallery";
+import HeroBanner from "@/components/HeroBanner";
+import MovieSection from "@/components/MovieSection";
+import { user } from "@/services/auth";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
 const safeFetchMovies = (url: string) =>
   fetch(url)
     .then((res) => {
@@ -11,12 +13,8 @@ const safeFetchMovies = (url: string) =>
     })
     .catch(() => ({ results: [] }));
 
-const popularPromise = safeFetchMovies(
-  "http://localhost:8000/api/movies/list?type=popular",
-);
-const topRatedPromise = safeFetchMovies(
-  "http://localhost:8000/api/movies/list?type=top-rated",
-);
+const popularPromise = safeFetchMovies(`${API_URL}/movies/list?type=popular`);
+const topRatedPromise = safeFetchMovies(`${API_URL}/movies/list?type=top-rated`);
 const userPromise = user().catch(() => null);
 
 function HomePage({ searchQuery }: { searchQuery?: string }) {
@@ -40,9 +38,7 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
     const delayDebounceFn = setTimeout(async () => {
       try {
         setSearchLoading(true);
-        const response = await fetch(
-          `http://localhost:8000/api/movies/search?query=${searchQuery}`,
-        );
+        const response = await fetch(`${API_URL}/movies/search?query=${searchQuery}`,);
         const data = await response.json();
         setSearchResults(data.results || []);
       } catch (err) {
@@ -85,7 +81,7 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
                 !
               </h2>
               <p className="text-movie-text-sec text-lg m-0">
-                Explore your favorite movies, manage your watchlist, and see
+                Explore your favorite movies, manage your watch list, and see
                 what's trending today.
               </p>
             </div>
@@ -93,9 +89,6 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
             <HeroBanner />
 
             <div className="space-y-10 mt-10">
-              {/*<MovieSection title="Keep Watching" movies={keepWatching} isLoggedIn={true} /> */}
-              {/* <MovieSection title="Trending Movies" movies={trending} isLoggedIn={true} /> */}
-
               <MovieSection
                 title="Top Rated"
                 movies={topRated}

@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../components/providers/AuthContext";
 import ReviewCard from "../components/moviePageComponents/ReviewCard";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 export default function MyReviews() {
   const [myReviews, setMyReviews] = useState<any[]>([]);
@@ -25,8 +27,7 @@ export default function MyReviews() {
 
         setError(null);
 
-        // Κλήση στο backend endpoint των feeds
-        const response = await fetch("http://localhost:8000/api/feeds", {
+        const response = await fetch(`${API_URL}/feeds`, {
           method: "GET",
           credentials: "include",
         });
@@ -38,7 +39,6 @@ export default function MyReviews() {
         const resData = await response.json();
         const allFeeds = Array.isArray(resData) ? resData : resData.data || [];
 
-        // Φιλτράρισμα βάσει του συνδεδεμένου χρήστη
         const userReviews = allFeeds.filter((feed: any) => {
           if (!feed.user) return false;
 

@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
 export default function AboutUs() {
@@ -40,7 +39,7 @@ export default function AboutUs() {
             elevating one another's skills at every milestone.
           </p>
 
-          <p className="text-gray-200 text-lg sm:text-xl font-medium tracking-wide italic text-movie-text-main pt-4">
+          <p className="text-gray-200 text-lg sm:text-xl font-medium tracking-wide italic pt-4">
             "To the entire SKG Education team, mentors, and fellow creators:
             thank you from the bottom of our hearts for this unforgettable
             chapter, the endless support, and this beautiful journey.{" "}
@@ -48,7 +47,6 @@ export default function AboutUs() {
           </p>
         </main>
 
-        {/* Call to Action Footer */}
         <footer className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link

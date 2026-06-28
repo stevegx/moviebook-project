@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import ProfPic from "../../Assets/ProfPic.png";
+import React, { useState, useEffect } from "react";
+import ProfPic from "@/assets/ProfPic.png";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 interface Comment {
   _id: string;
@@ -45,7 +47,7 @@ export default function CommentDialog({
     if (!reviewId) return;
     try {
       const response = await fetch(
-        `http://localhost:8000/api/feeds/${reviewId}/comments`,
+        `${API_URL}/feeds/${reviewId}/comments`,
         { credentials: "include" },
       );
       if (response.ok) {
@@ -82,14 +84,14 @@ export default function CommentDialog({
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:8000/api/feeds/${reviewId}/comments`,
+        `${API_URL}/feeds/${reviewId}/comments`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
             content: newComment.trim(),
-            parent: actualParentId, //
+            parent: actualParentId,
           }),
         },
       );
@@ -114,7 +116,6 @@ export default function CommentDialog({
       />
 
       <div className="bg-movie-dark border border-movie-border/80 w-full max-w-xl rounded-xl shadow-2xl relative z-10 flex flex-col max-h-[90vh]">
-        {/* HEADER */}
         <div className="p-4 border-b border-movie-border/40 bg-movie-bg/80 rounded-t-xl flex flex-col gap-4">
           <div className="flex justify-between items-start">
             <div className="flex gap-3 items-center">
@@ -174,7 +175,6 @@ export default function CommentDialog({
 
               return (
                 <div key={comment._id} className="flex flex-col gap-1.5">
-                  {/* Κύριο Σχόλιο */}
                   <div className="bg-movie-surface/40 border border-movie-border/40 p-3 rounded-xl flex gap-3 shadow-sm">
                     <img
                       src={ProfPic}

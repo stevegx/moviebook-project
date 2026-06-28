@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // <-- ΑΠΑΡΑΙΤΗΤΟ IMPORT για να δουλέψει το Link!
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 export default function ReviewCard({ review }: { review: any }) {
   const [movieData, setMovieData] = useState<any>(null);
@@ -11,11 +13,12 @@ export default function ReviewCard({ review }: { review: any }) {
 
     const fetchMovieDetail = async () => {
       setLoadingMovie(true);
+
       try {
-        const response = await fetch(
-          "http://localhost:8000/api/movies/" + movieId,
-        );
+        const response = await fetch(`${API_URL}/movies/${movieId}`);
+
         if (!response.ok) throw new Error("Failed to fetch movie info");
+        
         const data = await response.json();
         setMovieData(data);
       } catch (err) {
@@ -28,10 +31,7 @@ export default function ReviewCard({ review }: { review: any }) {
     fetchMovieDetail();
   }, [review?.movie_id]);
 
-  const displayTitle =
-    movieData?.title ||
-    movieData?.original_title ||
-    `Movie ID: ${review.movie_id}`;
+  const displayTitle = movieData?.title || movieData?.original_title || `Movie ID: ${review.movie_id}`;
 
   return (
     <div className="p-6 rounded-2xl bg-linear-to-r from-white/1to-transparent border border-white/4 hover:border-movie-accent/30 hover:from-movie-accent/1 transition-all duration-300 backdrop-blur-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group">
@@ -54,7 +54,6 @@ export default function ReviewCard({ review }: { review: any }) {
         </Link>
 
         <div className="space-y-2 flex-1">
-          {/* ΚΛΙΚΑΡΙΣΜΕΝΟΣ ΤΙΤΛΟΣ */}
           <h3 className="text-xl font-bold tracking-tight">
             {loadingMovie ? (
               <span className="inline-block w-48 h-5 bg-white/5 animate-pulse rounded" />
@@ -68,7 +67,6 @@ export default function ReviewCard({ review }: { review: any }) {
             )}
           </h3>
 
-          {/* Stars bar */}
           <div className="flex items-center gap-1 text-yellow-500">
             {Array.from({ length: 5 }).map((_, i) => (
               <span key={i} className="text-base">

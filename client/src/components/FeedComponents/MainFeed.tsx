@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import PostCard from "./PostCard";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 interface Review {
   id: string;
@@ -19,7 +21,7 @@ export default function MainFeed() {
 
   const getFeedData = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/feeds`, {
+      const response = await fetch(`${API_URL}/feeds`, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -32,7 +34,6 @@ export default function MainFeed() {
       const resBody = await response.json();
       console.log("Feeds API response:", resBody);
 
-      // 🟢 Εξαγωγή του πίνακα των feeds
       const rawReviews =
         resBody && Array.isArray(resBody.data)
           ? resBody.data
@@ -40,7 +41,6 @@ export default function MainFeed() {
             ? resBody
             : [];
 
-      // 🟢 Ομαλοποίηση (Normalization) των δεδομένων για να ταιριάζουν με το PostCard
       const normalizedReviews = rawReviews.map((review: any) => ({
         id: review.id || review._id,
         movie_id: review.movie_id,

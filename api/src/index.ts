@@ -30,11 +30,21 @@ await database.connect().catch((error) => {
 
 const APP_PORT = parseInt(process.env.APP_PORT || '8000')
 const APP_URL = process.env.APP_URL || 'http://localhost:8000'
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')
+const allowedOrigins = [FRONTEND_URL, 'http://127.0.0.1:5173']
 
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin(origin, callback) {
+      const normalizedOrigin = origin?.replace(/\/$/, '')
+
+      if (!origin || allowedOrigins.includes(normalizedOrigin || '')) {
+        callback(null, true)
+        return
+      }
+
+      callback(new Error('Not allowed by CORS'))
+    },
     credentials: true,
   })
 )

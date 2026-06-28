@@ -1,9 +1,9 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login, user as fetchUser } from "../services/authService";
+import { login, user as fetchUser } from "@/services/auth";
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import FormInput from "../components/FormInput";
-import { useAuth } from "../components/providers/AuthContext";
+import FormInput from "@/components/FormInput";
+import { useAuth } from "@/components/providers/AuthContext";
 function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",

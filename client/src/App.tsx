@@ -116,7 +116,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* Θα προσθέσετε τα υπόλοιπα routes εδώ */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>
