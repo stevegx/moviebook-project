@@ -1,36 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "../Navbar";
-import { user } from "@/services/auth";
+import { useAuth } from "../providers/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 function NavBarLayout({ children }: LayoutProps) {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const { user: authUser, setUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const data = await user();
-        setCurrentUser(data);
-      } catch (error) {
-        setCurrentUser(null);
-      }
-    };
-    checkUser();
-  }, []);
+  const currentUser = (authUser as any)?.user || authUser;
+  const isLoggedIn = !!currentUser;
 
   const handleLogoutSuccess = () => {
-    setCurrentUser(null);
+    setUser(null);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-movie-bg">
       <Navbar
         currentUser={currentUser}
-        isLoggedIn={!!currentUser}
+        isLoggedIn={isLoggedIn}
         onLogout={handleLogoutSuccess}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -39,7 +30,10 @@ function NavBarLayout({ children }: LayoutProps) {
       <main className="grow">
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            return React.cloneElement(child, { searchQuery } as any);
+            return React.cloneElement(child, {
+              searchQuery,
+              currentUser,
+            } as any);
           }
           return child;
         })}

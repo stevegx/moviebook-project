@@ -25,8 +25,7 @@ function LoginPage() {
 
     try {
       await login(formData);
-      const userData = await fetchUser();
-      setUser(userData);
+      window.dispatchEvent(new Event("authChange"));
       navigate("/");
     } catch (error) {
       console.log(error);

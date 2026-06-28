@@ -13,7 +13,7 @@ function LogoutButton({onLogoutSuccess, className}: LogoutProp) {
   const handleLogout = async () => {
     try {
       await logout(); 
-
+      window.dispatchEvent(new Event("authChange"));
     } catch (error) {
       console.log(error);
     } finally {
@@ -26,7 +26,7 @@ function LogoutButton({onLogoutSuccess, className}: LogoutProp) {
   return (
     <button 
       onClick={handleLogout} 
-      className={className || "text-sm font-medium text-red-500 hover:text-red-400 transition-colors cursor-pointer mr-5 focus:outline-none"}
+      className={className || "text-lg font-medium text-red-500 hover:text-red-400 transition-colors cursor-pointer mr-5 focus:outline-none"}
     >
       Logout
     </button>
