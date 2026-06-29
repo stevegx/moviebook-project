@@ -1,3 +1,4 @@
+import thedog from "../Assets/20260628_203743.jpg";
 interface TeamMember {
   name: string;
   role?: string;
@@ -38,54 +39,86 @@ export default function TeamPage() {
           <div className="w-24 h-px bg-linear-to-r from-transparent via-movie-accent to-transparent mx-auto mt-8 shadow-[0_0_10px_#fff]" />
         </header>
 
-        <main className="grid md:grid-cols-2 gap-12 lg:gap-16">
-          <section className="group">
-            <div className="flex items-center gap-3 mb-8 border-b border-gray-800 pb-4">
-              <span className="text-2xl">🎬</span>
-              <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wider text-white group-hover:text-movie-accent transition-colors duration-300">
-                Front End Team
-              </h2>
-              <span className="text-xs text-gray-500 font-mono ml-auto">
-                // client_side
-              </span>
-            </div>
+        <main className="w-full space-y-16">
+          {/* 👥 Grid για τις 2 ομάδες (Front End & Back End) */}
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+            {/* Front End Team */}
+            <section className="group">
+              <div className="flex items-center gap-3 mb-8 border-b border-gray-800 pb-4">
+                <span className="text-2xl">🎬</span>
+                <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wider text-white group-hover:text-movie-accent transition-colors duration-300">
+                  Front End Team
+                </h2>
+                <span className="text-xs text-gray-500 font-mono ml-auto">
+                  // client_side
+                </span>
+              </div>
 
-            <div className="space-y-4">
-              {frontend.map((member, idx) => (
-                <div
-                  key={idx}
-                  className="p-5 rounded-xl bg-linear-to-r from-white/2 to-transparent border border-white/5 hover:border-movie-accent/40 hover:from-movie-accent/2 transition-all duration-300 group/item backdrop-blur-md shadow-2xl"
-                >
-                  <div className="text-lg font-semibold text-gray-200 group-hover/item:text-white transition-colors">
-                    {member.name}
+              <div className="space-y-4">
+                {frontend.map((member, idx) => (
+                  <div
+                    key={idx}
+                    className="p-5 rounded-xl bg-linear-to-r from-white/2 to-transparent border border-white/5 hover:border-movie-accent/40 hover:from-movie-accent/2 transition-all duration-300 group/item backdrop-blur-md shadow-2xl"
+                  >
+                    <div className="text-lg font-semibold text-gray-200 group-hover/item:text-white transition-colors">
+                      {member.name}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
 
-          <section className="group">
-            <div className="flex items-center gap-3 mb-8 border-b border-gray-800 pb-4">
-              <span className="text-2xl">🎛️</span>
-              <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wider text-white group-hover:text-blue-400 transition-colors duration-300">
-                Back End Team
-              </h2>
-              <span className="text-xs text-gray-500 font-mono ml-auto">
-                // server_side
-              </span>
-            </div>
+            {/* Back End Team */}
+            <section className="group">
+              <div className="flex items-center gap-3 mb-8 border-b border-gray-800 pb-4">
+                <span className="text-2xl">🎛️</span>
+                <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wider text-white group-hover:text-blue-400 transition-colors duration-300">
+                  Back End Team
+                </h2>
+                <span className="text-xs text-gray-500 font-mono ml-auto">
+                  // server_side
+                </span>
+              </div>
 
-            <div className="space-y-4">
-              {backend.map((member, idx) => (
-                <div
-                  key={idx}
-                  className="p-5 rounded-xl bg-linear-to-r from-white/2 to-transparent border border-white/5 hover:border-blue-500/40 hover:from-blue-500/2 transition-all duration-300 group/item backdrop-blur-md shadow-2xl"
-                >
-                  <div className="text-lg font-semibold text-gray-200 group-hover/item:text-white transition-colors">
-                    {member.name}
+              <div className="space-y-4">
+                {backend.map((member, idx) => (
+                  <div
+                    key={idx}
+                    className="p-5 rounded-xl bg-linear-to-r from-white/2 to-transparent border border-white/5 hover:border-blue-500/40 hover:from-blue-500/2 transition-all duration-300 group/item backdrop-blur-md shadow-2xl"
+                  >
+                    <div className="text-lg font-semibold text-gray-200 group-hover/item:text-white transition-colors">
+                      {member.name}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {/* 🐾 Honorable Mention - Κεντραρισμένο ακριβώς από κάτω */}
+          <section className="flex items-center justify-center w-full pt-8">
+            <div className="flex flex-col items-center justify-center gap-4 max-w-md w-full text-center border-t border-gray-800/60 pt-8 group">
+              {/* Emoji & Τίτλος (Αφαιρέθηκε το animate-bounce) */}
+              <div className="flex items-center gap-2">
+                <span className="text-3xl">🐾</span>
+                <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wider text-white group-hover:text-movie-accent transition-colors duration-300">
+                  Honorable Mention
+                </h2>
+              </div>
+
+              {/* Εικόνα του Όσκαρ */}
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-movie-accent/30 group-hover:border-movie-accent transition-all duration-300 shadow-lg">
+                <img
+                  src={thedog}
+                  alt="the dog"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Όνομα */}
+              <h3 className="text-lg font-semibold text-gray-300 font-mono tracking-tight">
+                Oscar the dog
+              </h3>
             </div>
           </section>
         </main>
