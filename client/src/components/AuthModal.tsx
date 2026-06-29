@@ -1,6 +1,5 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTimes, FaLock } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 
 interface AuthModalProps {
   isOpen: boolean;

@@ -4,8 +4,7 @@ import MoviePosterFallback from "@/assets/MoviePoster3.jpg";
 import CommentDialog from "./CommentDialog";
 import { useAuth } from "../providers/AuthContext";
 import { Link } from "react-router-dom";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { API_URL } from "@/config";
 
 interface PostCardProps {
   review: {
@@ -43,7 +42,6 @@ export default function PostCard({ review }: PostCardProps) {
   const { user } = useAuth();
   const reviewId = review._id || review.id;
 
-  // 1. Fetch Likes (Count & Check Status)
   const fetchLikes = async () => {
     try {
       const response = await fetch(
@@ -61,7 +59,7 @@ export default function PostCard({ review }: PostCardProps) {
         setUserLikeId(myLike ? myLike._id : null);
       } else {
         console.warn("API did not return a valid list:", data);
-        setLikeCount(0); // Reset count if data is invalid
+        setLikeCount(0);
         setUserLikeId(null);
       }
     } catch (err) {
@@ -104,9 +102,6 @@ export default function PostCard({ review }: PostCardProps) {
 
     try {
       if (userLikeId) {
-        // --- DELETE LOGIC ---
-        console.log("Attempting to delete like with ID:", userLikeId);
-
         const response = await fetch(
           `${API_URL}/feeds/${reviewId}/likes/${userLikeId}`,
           {
@@ -118,15 +113,10 @@ export default function PostCard({ review }: PostCardProps) {
         if (response.ok) {
           setUserLikeId(null);
           setLikeCount((prev) => Math.max(0, prev - 1));
-          console.log("Like deleted successfully");
         } else {
-          console.error("Failed to delete. Status:", response.status);
           fetchLikes();
         }
       } else {
-        // --- POST LOGIC ---
-        console.log("Attempting to create like for feed:", reviewId);
-
         const response = await fetch(
           `${API_URL}/feeds/${reviewId}/likes`,
           {
@@ -140,13 +130,8 @@ export default function PostCard({ review }: PostCardProps) {
           const newData = await response.json();
           setUserLikeId(newData._id);
           setLikeCount((prev) => prev + 1);
-          console.log("Like created successfully");
         } else if (response.status === 400 || response.status === 409) {
-          // 400 Bad Request ή 409 Conflict (αν υπάρχει ήδη)
-          console.warn("Like already exists or invalid request, refreshing...");
           fetchLikes();
-        } else {
-          console.error("Failed to post like. Status:", response.status);
         }
       }
     } catch (err) {
@@ -175,7 +160,6 @@ export default function PostCard({ review }: PostCardProps) {
 
   return (
     <section className="flex flex-col gap-4 bg-movie-surface/40 p-5 rounded-xl border border-movie-border/60 max-w-2xl w-full">
-      {/* TOP ROW */}
       <div className="flex justify-between items-center w-full bg-movie-bg/60 p-3 rounded-xl">
         <div className="flex items-center gap-3">
           <img
@@ -184,11 +168,10 @@ export default function PostCard({ review }: PostCardProps) {
             className="w-10 h-10 border border-movie-accent/40 rounded-full object-cover shrink-0"
           />
           <h2 className="text-sm md:text-base font-medium text-movie-text-sec">
-            {/* LINK ΓΙΑ ΤΟ PROFILE */}
             <div className="text-white font-semibold hover:text-movie-accent cursor-pointer transition-colors duration-200 inline-block">
               @{displayUsername}
             </div>{" "}
-            reviewed {/* LINK ΓΙΑ ΤΗ ΣΕΛΙΔΑ ΤΗΣ ΤΑΙΝΙΑΣ */}
+            reviewed
             <Link
               to={`/movies/${review?.movie_id}`}
               className="text-movie-accent font-bold italic hover:underline cursor-pointer inline-block"
@@ -202,7 +185,6 @@ export default function PostCard({ review }: PostCardProps) {
         </span>
       </div>
 
-      {/* MIDDLE ROW */}
       <div className="flex gap-4 items-start w-full">
         <Link
           to={`/movies/${review?.movie_id}`}
@@ -237,7 +219,6 @@ export default function PostCard({ review }: PostCardProps) {
 
       <hr className="border-movie-border/40 w-full mt-2" />
 
-      {/* LIKE COUNTER */}
       {likeCount > 0 ? (
         <span className="text-xs font-semibold text-movie-text-main/80 animate-fade-in">
           ❤️ {likeCount} {likeCount === 1 ? "person" : "people"} liked this
@@ -247,9 +228,7 @@ export default function PostCard({ review }: PostCardProps) {
         <div className="my-2"></div>
       )}
 
-      {/* BOTTOM ROW */}
       <div className="flex items-center gap-3 w-full pt-4 border-t border-movie-border/20">
-        {/* Live Like Button */}
         <button
           onClick={handleLikeToggle}
           className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg border text-sm font-medium transition-all duration-200 cursor-pointer w-24
@@ -263,7 +242,6 @@ export default function PostCard({ review }: PostCardProps) {
           {userLikeId ? "Liked" : "Like"}
         </button>
 
-        {/* Comment Button */}
         <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg border border-movie-border/40 text-sm font-medium text-movie-text-sec hover:text-white hover:border-movie-text-sec transition-all duration-200 cursor-pointer w-28"

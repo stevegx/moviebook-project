@@ -9,6 +9,7 @@ export default function FeedPage() {
         <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight ">
           Recent Community Reviews
         </h1>
+        
         <PostFeed />
       </div>
 

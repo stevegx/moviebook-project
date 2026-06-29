@@ -7,13 +7,12 @@ import FormInput from "../components/FormInput";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
-      name: "",
-      username: "",
-      email: "",
-      password: "",
-      password_confirmation: "",
-    });
-
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
@@ -56,9 +55,7 @@ function RegisterPage() {
       });
       window.dispatchEvent(new Event("authChange"));
       navigate("/");
-      
     } catch (error) {
-      console.log(error);
       setErrorMessage("Registration failed. Something went wrong.");
     }
   };
@@ -126,9 +123,9 @@ function RegisterPage() {
           </div>
 
           {errorMessage && (
-          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 text-red-200 text-sm rounded text-center">
-            {errorMessage}
-          </div>
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500 text-red-200 text-sm rounded text-center">
+              {errorMessage}
+            </div>
           )}
 
           <div className="flex justify-between items-center mt-6">

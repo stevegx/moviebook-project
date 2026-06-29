@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import MovieGallery from "../components/moviePageComponents/movieGallery";
 import { Link } from "react-router-dom";
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { API_URL } from "@/config"
 
 interface CastMember {
   id: number;
@@ -10,6 +10,7 @@ interface CastMember {
   character: string;
   profile_path: string | null;
 }
+
 interface CrewMember {
   id: number;
   name: string;
@@ -19,13 +20,15 @@ interface CrewMember {
 }
 
 export default function MoviePage() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const [movie, setMovie] = useState<any | null>(null);
   const [castData, setCastData] = useState<CastMember[]>([]);
   const [crewData, setCrewData] = useState<CrewMember | null>();
+
   useEffect(() => {
     async function getMovie(movieId: string | undefined) {
       if (!movieId) return;
+
       try {
         const response = await fetch(`${API_URL}/movies/${movieId}`);
         if (!response.ok) throw new Error("Failed");
@@ -44,9 +47,10 @@ export default function MoviePage() {
         setCastData(data.cast?.slice(0, 12) || []);
         setCrewData(data.crew?.[0] || null);
       } catch (error) {
-        console.error(error);
+        throw new Error();
       }
     }
+
     getCredits();
     getMovie(id);
   }, [id]);
@@ -54,9 +58,7 @@ export default function MoviePage() {
   if (!movie) {
     return <div className="p-8 text-white">Loading Movie...</div>;
   }
-  console.log("movie json: ", movie);
-  console.log("cast json", castData);
-  console.log("crew json", crewData);
+
   return (
     <div className="flex flex-col">
       <section
@@ -79,19 +81,15 @@ export default function MoviePage() {
           </h1>
 
           <div className="flex items-center gap-3 text-sm">
-            <span>
-              {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}min
-            </span>
+            <span>{Math.floor(movie.runtime / 60)}h {movie.runtime % 60}min</span>
             <span className="w-1 h-1 rounded-full bg-gray-500"></span>
-            <span>{movie.genres.map((genre) => genre.name).join(", ")}</span>
+            <span>{movie.genres.map((genre: any) => genre.name).join(", ")}</span>
             <span className="w-1 h-1 rounded-full bg-gray-500"></span>
-            <span className="font-bold text-yellow-500">
-              {movie.vote_average.toFixed(1)} ⭐
-            </span>
+            <span className="font-bold text-yellow-500">{movie.vote_average.toFixed(1)} ⭐</span>
           </div>
           <div className="mt-3">
             <Link
-              to={`/watchmovie/${id}`} // <-- Σωστό dynamic path με backticks
+              to={`/watchmovie/${id}`}
               className="bg-movie-highlight/90 font-bold text-movie-text-main p-2 rounded-lg cursor-pointer hover:bg-movie-highlight/80 active:bg-movie-highlight/60 inline-block"
             >
               Watch movie
@@ -102,23 +100,16 @@ export default function MoviePage() {
 
       <section className="max-w-6xl my-10 mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-white">
         <div className="md:col-span-2">
-          <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">
-            Summary
-          </h2>
-          <p className="text-gray-300 leading-relaxed text-lg">
-            {movie.overview}
-          </p>
+          <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Summary</h2>
+          <p className="text-gray-300 leading-relaxed text-lg">{movie.overview}</p>
+          
           <div>
-            <h2 className="text-2xl mt-5 font-bold border-b border-gray-700 pb-2">
-              Cast & Crew
-            </h2>
+            <h2 className="text-2xl mt-5 font-bold border-b border-gray-700 pb-2">Cast & Crew</h2>
+            <h3 className="text-xl mt-2 font-bold text-movie-accent">Top Cast:</h3>
 
-            <h3 className="text-xl mt-2 font-bold text-movie-accent">
-              Top Cast:
-            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
               {castData.map((cast) => (
-                <div
+                <div 
                   key={cast.id}
                   className="flex justify-start items-center gap-4 my-3"
                 >
@@ -131,13 +122,10 @@ export default function MoviePage() {
                     alt={cast.name}
                     className="w-20 h-22 rounded-3xl object-cover shadow-md"
                   />
+
                   <div className="flex flex-col">
-                    <span className="text-white font-semibold text-base">
-                      {cast.name}
-                    </span>
-                    <span className="text-neutral-400 text-sm">
-                      {cast.character}
-                    </span>
+                    <span className="text-white font-semibold text-base">{cast.name}</span>
+                    <span className="text-neutral-400 text-sm">{cast.character}</span>
                   </div>
                 </div>
               ))}
@@ -147,16 +135,16 @@ export default function MoviePage() {
 
         <div className="flex flex-col gap-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">
-              Information
-            </h2>
+            <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Information</h2>
             <div className="flex flex-col gap-3">
               <h3>
                 <span className="text-gray-400 font-semibold">Status: </span>
                 {movie.status}
               </h3>
+
               <h3>
                 <span className="text-gray-400 font-semibold">Budget: </span>
+
                 {new Intl.NumberFormat("en-US", {
                   style: "currency",
                   currency: "USD",
@@ -173,17 +161,16 @@ export default function MoviePage() {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">
-              Production
-            </h2>
+            <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Production</h2>
             <p className="text-gray-300 text-sm">
-              {movie.production_companies.map((c) => c.name).join(", ")}
+              {movie.production_companies.map((company: any) => company.name).join(", ")}
             </p>
           </div>
           <div>
             <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">
               Director
             </h2>
+            
             <div
               key={crewData?.id}
               className="flex justify-start items-center gap-4 my-3"
@@ -197,6 +184,7 @@ export default function MoviePage() {
                 alt={crewData?.name}
                 className="w-16 h-18 rounded-3xl object-cover shadow-md"
               />
+              
               <div className="flex flex-col">
                 <span className="text-white font-semibold text-base">
                   {crewData?.name}
@@ -206,6 +194,7 @@ export default function MoviePage() {
           </div>
         </div>
       </section>
+
       <MovieGallery
         category="popular"
         currentMovieId={id as string}

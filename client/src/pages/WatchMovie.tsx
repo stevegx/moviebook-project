@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { API_URL } from "@/config";
 
 const BUFFERING_MESSAGES = [
   "Establishing secure connection to streaming node...",
@@ -17,12 +16,9 @@ export default function WatchMovie() {
   const { id } = useParams<{ id: string }>();
   const [movie, setMovie] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [bufferMessage, setBufferMessage] = useState<string>(
-    BUFFERING_MESSAGES[0],
-  );
+  const [bufferMessage, setBufferMessage] = useState<string>(BUFFERING_MESSAGES[0]);
   const [fakeProgress, setFakeProgress] = useState<number>(0);
 
-  // 1. Σωστό Fetch των στοιχείων της ταινίας
   useEffect(() => {
     async function getMovie(movieId: string | undefined) {
       if (!movieId) return;
@@ -37,28 +33,27 @@ export default function WatchMovie() {
         setLoading(false);
       }
     }
+    
     getMovie(id);
   }, [id]);
 
-  // 2. Infinite Buffering Text Loop
   useEffect(() => {
     let messageIndex = 0;
     const interval = setInterval(() => {
       messageIndex = (messageIndex + 1) % BUFFERING_MESSAGES.length;
       setBufferMessage(BUFFERING_MESSAGES[messageIndex]);
-    }, 4500); // Αλλαγή μηνύματος κάθε 4.5 δευτερόλεπτα
+    }, 4500);
 
     return () => clearInterval(interval);
   }, []);
 
-  // 3. Fake Progress Bar που κολλάει στο 99%
   useEffect(() => {
     const interval = setInterval(() => {
       setFakeProgress((prev) => {
-        if (prev < 40) return prev + Math.random() * 8; // Γρήγορο ξεκίνημα
-        if (prev < 75) return prev + Math.random() * 3; // Επιβράδυνση
-        if (prev < 99) return prev + Math.random() * 0.4; // Σέρνεται...
-        return 99.9; // Δεν φτάνει ΠΟΤΕ 100%
+        if (prev < 40) return prev + Math.random() * 8;
+        if (prev < 75) return prev + Math.random() * 3;
+        if (prev < 99) return prev + Math.random() * 0.4;
+        return 99.9;
       });
     }, 400);
 
@@ -73,7 +68,6 @@ export default function WatchMovie() {
     );
   }
 
-  // Δημιουργία των σωστών links εικόνων από το TMDB αν υπάρχουν
   const backdropUrl = movie?.backdrop_path
     ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
     : null;
@@ -106,11 +100,7 @@ export default function WatchMovie() {
           </div>
         </div>
 
-        {/* ========================================== */}
-        {/* INFINITE LOAD CINEMATIC PLAYER             */}
-        {/* ========================================== */}
         <div className="w-full aspect-video bg-black rounded-3xl border border-white/6 shadow-[0_30px_80px_rgba(0,0,0,0.9)] relative overflow-hidden group flex flex-col justify-between">
-          {/* Fake Video Background (Θολωμένο Backdrop της ταινίας για να ψαρώνει) */}
           {backdropUrl && (
             <div
               className="absolute inset-0 bg-cover bg-center filter blur-md opacity-30 scale-105 transition-transform duration-10000 group-hover:scale-110"
@@ -118,10 +108,8 @@ export default function WatchMovie() {
             />
           )}
 
-          {/* Player Vignette / Dark Overlay */}
           <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-black/70 z-0" />
 
-          {/* Top Info Bar (Netflix/YouTube style) */}
           <div className="z-10 flex justify-between items-center p-6 bg-linear-to-b from-black/90 via-black/40 to-transparent absolute top-0 left-0 w-full transform -translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
             <div className="space-y-0.5">
               <span className="text-sm font-bold tracking-wide drop-shadow-md">
@@ -136,9 +124,7 @@ export default function WatchMovie() {
             </span>
           </div>
 
-          {/* MIDDLE: THE INFINITE BUFFERING SPIN & FAKE MESSAGES */}
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-6 text-center space-y-4">
-            {/* Massive Pro Loader Grid */}
             <div className="relative flex items-center justify-center">
               <div className="w-20 h-20 border-4 border-movie-accent/20 border-t-4 border-t-movie-accent rounded-full animate-spin duration-1000" />
               <div className="absolute w-14 h-14 border-4 border-blue-500/10 border-b-4 border-b-blue-400 rounded-full animate-spin duration-700 reverse-spin" />
@@ -154,12 +140,9 @@ export default function WatchMovie() {
             </div>
           </div>
 
-          {/* Bottom Custom Controls (Netflix Mockup style) */}
           <div className="z-10 w-full bg-linear-to-t from-black via-black/80 to-transparent p-6 absolute bottom-0 left-0 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 space-y-4">
-            {/* Progress Timeline Scrubber */}
             <div className="space-y-1">
               <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden relative cursor-not-allowed">
-                {/* Δείχνει ελάχιστο κόκκινο loading στην αρχή */}
                 <div className="w-[1.2%] h-full bg-movie-accent rounded-full" />
               </div>
               <div className="flex justify-between text-[10px] font-mono text-gray-400">
@@ -170,7 +153,6 @@ export default function WatchMovie() {
               </div>
             </div>
 
-            {/* Layout Controls */}
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-6 text-gray-300">
                 <button className="text-xl cursor-not-allowed opacity-50">
@@ -198,9 +180,6 @@ export default function WatchMovie() {
           </div>
         </div>
 
-        {/* ========================================== */}
-        {/* MOVIE INFO SUMMARY BOX                      */}
-        {/* ========================================== */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 bg-white/1 border border-white/3 p-6 rounded-2xl backdrop-blur-md space-y-3">
             <h3 className="text-lg font-bold text-movie-accent uppercase tracking-wider font-mono">

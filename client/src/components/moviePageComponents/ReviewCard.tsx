@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { API_URL } from "@/config"
 
 export default function ReviewCard({ review }: { review: any }) {
   const [movieData, setMovieData] = useState<any>(null);

@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { API_URL } from '@/config'
 
 export const register = async (credentials: {
   name: string;
@@ -21,7 +21,6 @@ export const register = async (credentials: {
       throw new Error("Registration failed");
     }
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
@@ -44,7 +43,6 @@ export const login = async (credentials: {
       throw new Error("Login failed");
     }
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
@@ -75,7 +73,6 @@ export const user = async (updatedData?: {
 
     return data;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
@@ -94,7 +91,6 @@ export const logout = async () => {
       throw new Error("Logout failed");
     }
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };

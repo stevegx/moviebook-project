@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaFilm,
@@ -7,7 +7,6 @@ import {
   FaPhone,
   FaMapMarkerAlt,
 } from "react-icons/fa";
-import LogoutButton from "./LogoutButton";
 
 interface FooterProps {
   isLoggedIn: boolean;
@@ -81,12 +80,6 @@ function Footer({ isLoggedIn, onLogout }: FooterProps) {
                     >
                       My Profile
                     </Link>
-                  </li>
-                  <li>
-                    <LogoutButton
-                      onLogoutSuccess={onLogout}
-                      className="hover:text-red-400 transition-colors text-left cursor-pointer"
-                    />
                   </li>
                 </>
               )}

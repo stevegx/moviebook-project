@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import movie from './service'
+import { Movie } from '../services'
 
 class Controller {
   async list(req: Request, res: Response) {
@@ -7,7 +7,7 @@ class Controller {
     const page = (req.query.page as string) || '1'
 
     try {
-      const data = await movie.list(type, page)
+      const data = await Movie.list(type, page)
 
       return res.json(data)
     } catch (error) {
@@ -20,7 +20,7 @@ class Controller {
     const page = (req.query.page as string) || '1'
 
     try {
-      const data = await movie.search(query, page)
+      const data = await Movie.search(query, page)
 
       return res.json(data)
     } catch (error) {
@@ -30,7 +30,7 @@ class Controller {
 
   async detail(req: Request, res: Response) {
     try {
-      const data = await movie.detail(req.params.id as string)
+      const data = await Movie.detail(req.params.id as string)
 
       return res.json(data)
     } catch (error) {
@@ -40,7 +40,7 @@ class Controller {
 
   async credits(req: Request, res: Response) {
     try {
-      const data = await movie.credits(req.params.id as string)
+      const data = await Movie.credits(req.params.id as string)
 
       return res.json(data)
     } catch (error) {

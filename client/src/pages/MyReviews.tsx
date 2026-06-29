@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../components/providers/AuthContext";
-import ReviewCard from "../components/moviePageComponents/ReviewCard";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { useAuth } from "@/components/providers/AuthContext";
+import ReviewCard from "@/components/moviePageComponents/ReviewCard";
+import { API_URL } from "@/config";
 
 export default function MyReviews() {
   const [myReviews, setMyReviews] = useState<any[]>([]);
@@ -17,7 +16,8 @@ export default function MyReviews() {
 
     const fetchAndFilterMyReviews = async () => {
       try {
-        const currentUserId = user?.id || user?._id;
+        const currentUserId = (user as { id?: string; _id?: string })?.id ||
+          (user as { id?: string; _id?: string })?._id;
 
         if (!currentUserId) {
           setError("User authentication ID missing. Please re-login.");
@@ -109,7 +109,7 @@ export default function MyReviews() {
               to drop your first movie rating!
             </p>
             <Link
-              to="/home"
+              to="/"
               className="mt-6 inline-block text-xs uppercase tracking-widest font-black bg-movie-accent text-white px-8 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all duration-200 shadow-[0_0_20px_rgba(229,9,20,0.3)]"
             >
               Discover Movies
