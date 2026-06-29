@@ -14,6 +14,7 @@ import MyReviews from "./pages/MyReviews";
 import AboutUs from "./pages/AboutUs";
 import { AuthProvider } from "./components/providers/AuthContext";
 import WatchMovie from "./pages/WatchMovie";
+
 function App() {
   return (
     <AuthProvider>
@@ -33,24 +34,6 @@ function App() {
                   <HomePage />
                 </Suspense>
               </MainLayout>
-            }
-          />
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <Suspense
-                    fallback={
-                      <div className="min-h-screen bg-movie-bg flex items-center justify-center text-movie-accent animate-pulse">
-                        Loading MovieBook Dashboard...
-                      </div>
-                    }
-                  >
-                    <HomePage />
-                  </Suspense>
-                </MainLayout>
-              </ProtectedRoute>
             }
           />
           <Route path="/login" element={<LoginPage />} />

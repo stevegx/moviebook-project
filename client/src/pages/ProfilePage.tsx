@@ -13,12 +13,15 @@ function ProfilePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
   const [user, setUser] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem("currentUser");
+
     if (saved) {
       const parsed = JSON.parse(saved);
       return parsed.user || parsed;
     }
+    
     return null;
   });
 

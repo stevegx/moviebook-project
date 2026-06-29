@@ -82,8 +82,6 @@ class Controller {
 
       return res.json(feed)
     } catch (error) {
-      console.log(error);
-
       return res.status(500).json({ error })
     }
   }

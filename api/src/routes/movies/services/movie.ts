@@ -47,7 +47,7 @@ class Movie {
 
   async search(query: string, page: string) {
     try {
-      const data = await this.fetcher(`/search/movie?query=${query}&language=en-US&page=${page}`)
+      const data = await this.fetcher(`/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=${page}`)
 
       return data
     } catch (error) {
@@ -60,8 +60,14 @@ class Movie {
   }
 
   async detail(id: string) {
+    if (!id || String(id).trim() === '') {
+      throw new Error('Invalid movie id')
+    }
+
+    const encodedId = encodeURIComponent(String(id))
+
     try {
-      const data = await this.fetcher(`/movie/${id}?language=en-US`)
+      const data = await this.fetcher(`/movie/${encodedId}?language=en-US`)
 
       return data
     } catch (error) {
@@ -73,8 +79,16 @@ class Movie {
     }
   }
   async credits(id: string) {
+    if (!id || String(id).trim() === '') {
+      throw new Error('Invalid movie id')
+    }
+
+    const encodedId = encodeURIComponent(String(id))
+    const path = `/movie/${encodedId}/credits?language=en-US`
+    console.debug('[Movie.credits] id=%s path=%s', id, path)
+
     try {
-      const data = await this.fetcher(`/movie/${id}/credits?language=en-US`)
+      const data = await this.fetcher(path)
 
       return data
     } catch (error) {

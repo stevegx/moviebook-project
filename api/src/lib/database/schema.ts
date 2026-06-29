@@ -22,6 +22,29 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
 })
 
+const movieCommentSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  movie: {
+    type: String,
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  parent: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'MovieComment',
+    default: null,
+  },
+}, {
+  timestamps: true,
+})
+
 const feedSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -88,6 +111,7 @@ const feedCommentSchema = new mongoose.Schema({
 })
 
 export const User = mongoose.model('User', userSchema)
+export const MovieComment = mongoose.model('MovieComment', movieCommentSchema)
 export const Feed = mongoose.model('Feed', feedSchema)
 export const FeedLike = mongoose.model('FeedLike', feedLikeSchema)
 export const FeedComment = mongoose.model('FeedComment', feedCommentSchema)

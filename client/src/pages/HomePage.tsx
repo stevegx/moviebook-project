@@ -1,9 +1,9 @@
 import { useState, useEffect, use } from "react";
-import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import HeroBanner from "../components/HeroBanner";
-import MovieSection from "../components/MovieSection";
-import { useAuth } from "../components/providers/AuthContext"; // 🔥 Χρήση του Global Auth
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { useSearchParams } from "react-router-dom";
+import HeroBanner from "@/components/HeroBanner";
+import MovieSection from "@/components/MovieSection";
+import { API_URL } from "@/config";
+
 const safeFetchMovies = (url: string) =>
   fetch(url)
     .then((res) => {
@@ -12,30 +12,25 @@ const safeFetchMovies = (url: string) =>
     })
     .catch(() => ({ Appresults: [] }));
 
-const popularPromise = safeFetchMovies(
-  "http://localhost:8000/api/movies/list?type=popular",
-);
-const topRatedPromise = safeFetchMovies(
-  "http://localhost:8000/api/movies/list?type=top-rated",
-);
+const popularPromise = safeFetchMovies(`${API_URL}/movies/list?type=popular`);
+const topRatedPromise = safeFetchMovies(`${API_URL}/movies/list?type=top_rated`);
+const upcomingPromise = safeFetchMovies(`${API_URL}/movies/list?type=upcoming`);
+const nowPlayingPromise = safeFetchMovies(`${API_URL}/movies/list?type=now_playing`);
 
-function HomePage({ searchQuery }: { searchQuery?: string }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // 🔥 Παίρνουμε τον έτοιμο χρήστη από το Context χωρίς manual API calls
-  const { user: authUser } = useAuth();
-  const currentUser = (authUser as any)?.user || authUser;
-  const isLoggedIn = !!currentUser;
-
+function HomePage() {
   const popularData = use(popularPromise);
   const topRatedData = use(topRatedPromise);
+  const upcomingData = use(upcomingPromise);
+  const nowPlayingData = use(nowPlayingPromise);
+
   const trending = popularData.results || [];
   const randomBackdrops = trending
     .filter((movie: any) => movie.backdrop_path)
     .sort(() => Math.random() - 0.5)
     .slice(0, 3);
   const topRated = topRatedData.results || [];
+  const upcoming = upcomingData.results || [];
+  const nowPlaying = nowPlayingData.results || [];
   const [currentTrendingPage, setCurrentTrendingPage] = useState(0);
   const moviesPerPage = 5;
 
@@ -53,9 +48,7 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
     const delayDebounceFn = setTimeout(async () => {
       try {
         setSearchLoading(true);
-        const response = await fetch(
-          `http://localhost:8000/api/movies/search?query=${urlSearchQuery}`,
-        );
+        const response = await fetch(`${API_URL}/movies/search?query=${urlSearchQuery}`);
         const data = await response.json();
         setSearchResults(data.results || []);
       } catch (err) {
@@ -72,35 +65,23 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
 
   return (
     <div className="min-h-screen text-movie-text-main font-body relative">
-      {/* Glowing orbs */}
       <div
         className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)" }}
       />
       <div
         className="absolute bottom-[40%] left-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
       />
-      <div
+      <div 
         className="absolute bottom-[-200px] right-[-200px] w-[700px] h-[700px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)" }}
       />
       <div
         className="absolute top-[40%] right-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
       />
+
       <main className="w-full px-16 py-14 relative z-10">
         {isSearching ? (
           <div className="space-y-6">
@@ -111,7 +92,7 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
             {searchLoading ? (
               <p className="text-movie-accent animate-pulse">Searching...</p>
             ) : (
-              <MovieSection title="" movies={searchResults} isLoggedIn={true} />
+              <MovieSection movies={searchResults} />
             )}
           </div>
         ) : (
@@ -123,7 +104,7 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
                 <div className="space-y-4">
                   <div className="flex justify-between items-end border-b border-gray-800 pb-2">
                     <h2 className="text-2xl font-bold font-display text-movie-text-main">
-                      Trending Movies
+                      Popular
                     </h2>
 
                     <div className="flex items-center space-x-4">
@@ -166,12 +147,10 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
                   </div>
 
                   <MovieSection
-                    title=""
                     movies={trending.slice(
                       currentTrendingPage * moviesPerPage,
                       (currentTrendingPage + 1) * moviesPerPage,
                     )}
-                    isLoggedIn={isLoggedIn}
                   />
                 </div>
 
@@ -181,11 +160,28 @@ function HomePage({ searchQuery }: { searchQuery?: string }) {
                       Top Rated
                     </h2>
                   </div>
-                  <MovieSection
-                    title=""
-                    movies={topRated}
-                    isLoggedIn={isLoggedIn}
-                  />
+
+                  <MovieSection movies={topRated} />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="border-b border-gray-800 pb-2">
+                    <h2 className="text-2xl font-bold font-display text-movie-text-main">
+                      Now Playing
+                    </h2>
+                  </div>
+
+                  <MovieSection movies={nowPlaying} />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="border-b border-gray-800 pb-2">
+                    <h2 className="text-2xl font-bold font-display text-movie-text-main">
+                      Upcoming
+                    </h2>
+                  </div>
+
+                  <MovieSection movies={upcoming} />
                 </div>
               </div>
             </div>

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import MovieCard from "../components/MovieCard";
+import MovieCard from "@/components/MovieCard";
+const AnyMovieCard = MovieCard as any;
+import { API_URL } from "@/config";
 
 function TrendingPage() {
   const [movies, setMovies] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/movies/list?type=popular")
+    fetch(`${API_URL}/movies/list?type=popular`)
       .then(res => res.json())
       .then(data => {
         const movies = data.results?.map((movie: any) => ({
@@ -25,15 +27,15 @@ function TrendingPage() {
         <h1 className="text-4xl font-bold text-white mb-10 text-center">
           Trending Movies
         </h1>
+
         <div className="flex gap-5 flex-wrap justify-start">
           {movies.map((movie) => (
-            <MovieCard
+            <AnyMovieCard
               key={movie.id}
               id={movie.id}
               title={movie.title}
               rating={movie.rating ? movie.rating.toString() : "N/A"}
               genre={movie.genre}
-              isLoggedIn={true}
               poster_path={movie.poster_path}
             />
           ))}

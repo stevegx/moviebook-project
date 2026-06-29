@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import PostCard from "./PostCard";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { API_URL } from "@/config";
 
 interface Review {
   id: string;
@@ -32,7 +31,6 @@ export default function MainFeed() {
       if (!response.ok) throw new Error("Failed to fetch reviews");
 
       const resBody = await response.json();
-      console.log("Feeds API response:", resBody);
 
       const rawReviews =
         resBody && Array.isArray(resBody.data)
@@ -46,7 +44,6 @@ export default function MainFeed() {
         movie_id: review.movie_id,
         rating: review.rating,
         content: review.content,
-        // Fallbacks σε περίπτωση που το PostCard ζητάει ακόμα τα παλιά ονόματα πεδίων:
         reviewText: review.content || review.reviewText,
         username: review.user?.username || "Anonymous",
         user: review.user,

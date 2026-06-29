@@ -1,9 +1,9 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login, user as fetchUser } from "@/services/auth";
+import { login } from "@/services/auth";
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import FormInput from "@/components/FormInput";
-import { useAuth } from "@/components/providers/AuthContext";
+
 function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
@@ -13,7 +13,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const { setUser } = useAuth();
+
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage("");
@@ -28,13 +28,29 @@ function LoginPage() {
       window.dispatchEvent(new Event("authChange"));
       navigate("/");
     } catch (error) {
-      console.log(error);
       setErrorMessage("Invalid email or password.");
     }
   };
 
   return (
     <div className="min-h-[85vh] flex flex-col justify-center items-center py-10">
+      <div
+        className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full pointer-events-none z-0"
+        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)" }}
+      />
+      <div
+        className="absolute bottom-[40%] left-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
+        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
+      />
+      <div 
+        className="absolute bottom-[-200px] right-[-200px] w-[700px] h-[700px] rounded-full pointer-events-none z-0"
+        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)" }}
+      />
+      <div
+        className="absolute top-[40%] right-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
+        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
+      />
+      
       <div className="w-100 bg-movie-surface rounded-lg border border-[#b4b4b4] p-7.5 shadow-xl">
         <h1 className="text-center mb-6 text-2xl font-bold font-display text-movie-text-main">
           Welcome Back
