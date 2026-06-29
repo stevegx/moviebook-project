@@ -1,6 +1,6 @@
-import PostFeed from "@/components/FeedComponents/PostFeed";
-import MainFeed from "@/components/FeedComponents/MainFeed";
-import SideFeed from "@/components/FeedComponents/SideFeed";
+import PostFeed from "@/components/Feed/PostFeed";
+import MainFeed from "@/components/Feed/MainFeed";
+import SideFeed from "@/components/Feed/SideFeed";
 
 export default function FeedPage() {
   return (

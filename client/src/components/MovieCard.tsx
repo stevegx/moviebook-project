@@ -42,7 +42,7 @@ function MovieCard({ id, title, vote_average, poster_path, release_date }: Movie
 
         <span className="flex items-center gap-1">
           <FaStar color="gold" />
-          {Number(vote_average).toFixed(2)}
+          {Number(vote_average).toFixed(1)}
         </span>
       </div>
     </div>

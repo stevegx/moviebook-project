@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express'
+import type { NextFunction, Request, Response } from 'express'
 import { MovieComment } from '@/lib/database/schema'
 import type { MovieCommentInput } from '../schema'
 
@@ -46,7 +46,7 @@ class Controller {
     }
   }
 
-  async show(req: Request, res: Response) {
+  async show(req: Request, res: Response, next: NextFunction) {
     try {
       const comment = await MovieComment.findById(req.params.id).lean()
 
@@ -56,11 +56,11 @@ class Controller {
 
       return res.json(comment)
     } catch (error) {
-      return res.status(500).json({ error })
+      next(error)
     }
   }
 
-  async store(req: Request<{ movie: string }, {}, MovieCommentInput>, res: Response) {
+  async store(req: Request<{ movie: string }, {}, MovieCommentInput>, res: Response, next: NextFunction) {
     try {
       const comment = await MovieComment.create({
         user: req.user.id,
@@ -73,11 +73,11 @@ class Controller {
 
       return res.status(201).json(populatedComment)
     } catch (error) {
-      return res.status(500).json({ error })
+      next(error)
     }
   }
 
-  async update(req: Request<{ id: string }, {}, MovieCommentInput>, res: Response) {
+  async update(req: Request<{ id: string }, {}, MovieCommentInput>, res: Response, next: NextFunction) {
     try {
       const comment = await MovieComment.findByIdAndUpdate(req.params.id, req.body, { new: true }).lean()
 
@@ -87,11 +87,11 @@ class Controller {
 
       return res.json(comment)
     } catch (error) {
-      return res.status(500).json({ error })
+      next(error)
     }
   }
 
-  async destroy(req: Request, res: Response) {
+  async destroy(req: Request, res: Response, next: NextFunction) {
     try {
       const comment = await MovieComment.findByIdAndDelete(req.params.id).lean()
 
@@ -101,7 +101,7 @@ class Controller {
 
       return res.json(comment)
     } catch (error) {
-      return res.status(500).json({ error })
+      next(error)
     }
   }
 }
