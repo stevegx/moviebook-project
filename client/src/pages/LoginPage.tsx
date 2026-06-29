@@ -26,7 +26,7 @@ function LoginPage() {
     try {
       await login(formData);
       window.dispatchEvent(new Event("authChange"));
-      window.location.href = "/";
+      navigate("/");
     } catch (error) {
       setErrorMessage("Invalid email or password.");
     }
@@ -36,33 +36,21 @@ function LoginPage() {
     <div className="min-h-[85vh] flex flex-col justify-center items-center py-10">
       <div
         className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)" }}
       />
       <div
         className="absolute bottom-[40%] left-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
       />
-      <div
+      <div 
         className="absolute bottom-[-200px] right-[-200px] w-[700px] h-[700px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)" }}
       />
       <div
         className="absolute top-[40%] right-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
       />
-
+      
       <div className="w-100 bg-movie-surface rounded-lg border border-[#b4b4b4] p-7.5 shadow-xl">
         <h1 className="text-center mb-6 text-2xl font-bold font-display text-movie-text-main">
           Welcome Back

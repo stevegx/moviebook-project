@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/components/providers/AuthContext";
-import ReviewCard from "@/components/moviePageComponents/ReviewCard";
+import ReviewCard from "@/components/Movie/ReviewCard";
 import { API_URL } from "@/config";
 
 export default function MyReviews() {

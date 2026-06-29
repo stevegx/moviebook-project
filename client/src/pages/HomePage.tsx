@@ -13,13 +13,9 @@ const safeFetchMovies = (url: string) =>
     .catch(() => ({ Appresults: [] }));
 
 const popularPromise = safeFetchMovies(`${API_URL}/movies/list?type=popular`);
-const topRatedPromise = safeFetchMovies(
-  `${API_URL}/movies/list?type=top_rated`,
-);
+const topRatedPromise = safeFetchMovies(`${API_URL}/movies/list?type=top_rated`);
 const upcomingPromise = safeFetchMovies(`${API_URL}/movies/list?type=upcoming`);
-const nowPlayingPromise = safeFetchMovies(
-  `${API_URL}/movies/list?type=now_playing`,
-);
+const nowPlayingPromise = safeFetchMovies(`${API_URL}/movies/list?type=now_playing`);
 
 function HomePage() {
   const popularData = use(popularPromise);
@@ -52,9 +48,7 @@ function HomePage() {
     const delayDebounceFn = setTimeout(async () => {
       try {
         setSearchLoading(true);
-        const response = await fetch(
-          `${API_URL}/movies/search?query=${urlSearchQuery}`,
-        );
+        const response = await fetch(`${API_URL}/movies/search?query=${urlSearchQuery}`);
         const data = await response.json();
         setSearchResults(data.results || []);
       } catch (err) {
@@ -70,34 +64,22 @@ function HomePage() {
   const isSearching = urlSearchQuery && urlSearchQuery.trim() !== "";
 
   return (
-    <div className="min-h-screen text-movie-text-main font-body relative overflow-hidden">
+    <div className="min-h-screen text-movie-text-main font-body relative">
       <div
         className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)" }}
       />
       <div
         className="absolute bottom-[40%] left-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
       />
-      <div
+      <div 
         className="absolute bottom-[-200px] right-[-200px] w-[700px] h-[700px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)" }}
       />
       <div
         className="absolute top-[40%] right-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
       />
 
       <main className="w-full px-16 py-14 relative z-10">

@@ -44,9 +44,10 @@ export default function PostCard({ review }: PostCardProps) {
 
   const fetchLikes = async () => {
     try {
-      const response = await fetch(`${API_URL}/feeds/${reviewId}/likes/all`, {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${API_URL}/feeds/${reviewId}/likes/all`,
+        { credentials: "include" },
+      );
       const data = await response.json();
 
       if (response.ok && Array.isArray(data)) {
@@ -73,10 +74,13 @@ export default function PostCard({ review }: PostCardProps) {
         return;
       }
       try {
-        const response = await fetch(`${API_URL}/movies/${review.movie_id}`, {
-          method: "GET",
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${API_URL}/movies/${review.movie_id}`,
+          {
+            method: "GET",
+            credentials: "include",
+          },
+        );
 
         if (response.ok) {
           const resData = await response.json();
@@ -113,11 +117,14 @@ export default function PostCard({ review }: PostCardProps) {
           fetchLikes();
         }
       } else {
-        const response = await fetch(`${API_URL}/feeds/${reviewId}/likes`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${API_URL}/feeds/${reviewId}/likes`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          },
+        );
 
         if (response.ok) {
           const newData = await response.json();
@@ -155,18 +162,11 @@ export default function PostCard({ review }: PostCardProps) {
     <section className="flex flex-col gap-4 bg-movie-surface/40 p-5 rounded-xl border border-movie-border/60 max-w-2xl w-full">
       <div className="flex justify-between items-center w-full bg-movie-bg/60 p-3 rounded-xl">
         <div className="flex items-center gap-3">
-          <svg
-            stroke="currentColor"
-            fill="currentColor"
-            strokeWidth="0"
-            viewBox="0 0 496 512"
-            className="w-10 h-10 text-movie-accent "
-            height="1em"
-            width="1em"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96c48.6 0 88 39.4 88 88s-39.4 88-88 88-88-39.4-88-88 39.4-88 88-88zm0 344c-58.7 0-111.3-26.6-146.5-68.2 18.8-35.4 55.6-59.8 98.5-59.8 2.4 0 4.8.4 7.1 1.1 13 4.2 26.6 6.9 40.9 6.9 14.3 0 28-2.7 40.9-6.9 2.3-.7 4.7-1.1 7.1-1.1 42.9 0 79.7 24.4 98.5 59.8C359.3 421.4 306.7 448 248 448z"></path>
-          </svg>
+          <img
+            src={ProfPic}
+            alt="Profile pic"
+            className="w-10 h-10 border border-movie-accent/40 rounded-full object-cover shrink-0"
+          />
           <h2 className="text-sm md:text-base font-medium text-movie-text-sec">
             <div className="text-white font-semibold hover:text-movie-accent cursor-pointer transition-colors duration-200 inline-block">
               @{displayUsername}

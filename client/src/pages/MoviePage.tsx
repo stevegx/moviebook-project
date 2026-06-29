@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import MovieGallery from "../components/moviePageComponents/movieGallery";
+import MovieGallery from "@/components/Movie/MovieGallery";
 import { Link } from "react-router-dom";
 import { API_URL } from "@/config"
+import MovieComments from "@/components/Movie/MovieComments";
 
 interface CastMember {
   id: number;
@@ -19,11 +20,13 @@ interface CrewMember {
   profile_path: string | null;
 }
 
+
 export default function MoviePage() {
   const { id } = useParams();
   const [movie, setMovie] = useState<any | null>(null);
   const [castData, setCastData] = useState<CastMember[]>([]);
   const [crewData, setCrewData] = useState<CrewMember | null>();
+  const [comments, setComments] = useState<any | null>();
 
   useEffect(() => {
     async function getMovie(movieId: string | undefined) {
@@ -41,6 +44,7 @@ export default function MoviePage() {
 
     async function getCredits() {
       if (!id) return;
+
       try {
         const response = await fetch(`${API_URL}/movies/${id}/credits`);
         const data = await response.json();
@@ -51,8 +55,28 @@ export default function MoviePage() {
       }
     }
 
+    async function getComments(id: string | undefined) {
+      if (!id) return;
+
+      try {
+        const response = await fetch(`${API_URL}/movies/${id}/comments`, {
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to load comments");
+        }
+
+        const data = await response.json();
+        setComments(data);
+      } catch (error) {
+        console.error("Failed to fetch comments:", error);
+      }
+    }
+
     getCredits();
     getMovie(id);
+    getComments(id)
   }, [id]);
 
   if (!movie) {
@@ -194,6 +218,8 @@ export default function MoviePage() {
           </div>
         </div>
       </section>
+
+      <MovieComments id={id} data={comments} />
 
       <MovieGallery
         category="popular"

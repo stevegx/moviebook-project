@@ -8,8 +8,8 @@ import {
 import { user as getUser } from "@/services/auth";
 
 type AuthContextType = {
-  user: unknown;
-  setUser: React.Dispatch<React.SetStateAction<unknown>>;
+  user: { name?: string } | null;
+  setUser: React.Dispatch<React.SetStateAction<{ name?: string } | null>>;
   loading: boolean;
 };
 
@@ -17,12 +17,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 AuthContext.displayName = "AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<unknown>(null);
+  const [user, setUser] = useState<{ name?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getUser()
-      .then((data) => setUser(data))
+      .then((data) => setUser(data as { name?: string }))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);

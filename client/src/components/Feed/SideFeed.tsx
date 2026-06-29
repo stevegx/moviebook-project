@@ -1,4 +1,4 @@
-import MovieGallery from "../moviePageComponents/movieGallery";
+import MovieGallery from "../Movie/MovieGallery";
 
 export default function SideFeed() {
   return (

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 @theme {
   --color-movie-bg: #070b14;
   --color-movie-surface: #0d1525;
@@ -7,18 +8,16 @@
   --color-movie-text-sec: #99aab5;
   --color-movie-highlight: #ffc107;
   --color-movie-border: #14b2d633;
-  --font-display: "Inter", sans-serif; /* Για τίτλους */
-  --font-body: "Roboto", sans-serif; /* Για κείμενα */
+  --font-display: "Inter", sans-serif;
+  --font-body: "Roboto", sans-serif;
 }
 
 @layer base {
-  /* Το default style για όλο το app */
   body {
     @apply bg-movie-bg text-movie-text-main antialiased;
   }
 }
 
-/* Movie cards */
 .movie-card {
   background-color: #1c252d;
   width: 230px;
