@@ -1,140 +1,47 @@
-import { FaUserCircle } from "react-icons/fa";
-import { user as getProfile } from "@/services/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import EditProfileModal from "@/components/EditProfileModal";
+import { useAuth } from "@/components/providers/AuthContext";
+import { updateProfile } from "@/services/auth";
+import type { ProfileInput } from "@/services/auth";
 
-interface UserProfile {
-  name: string;
-  username: string;
-  email: string;
-}
+export default function ProfilePage() {
+  const { user, setUser } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-function ProfilePage() {
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem("currentUser");
+  if (!user) return null;
 
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.user || parsed;
-    }
-    
-    return null;
-  });
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await getProfile();
-        setUser(data);
-        localStorage.setItem("currentUser", JSON.stringify(data));
-        setError("");
-      } catch (err: any) {
-        setError(err.message || "Failed to load profile");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  if (loading) {
-    return (
-      <p className="text-center mt-10 text-movie-text-sec">
-        Loading profile...
-      </p>
-    );
-  }
-
-  if (error) {
-    return <p className="text-center mt-10 text-red-500">{error}</p>;
-  }
-
-  const handleSaveChanges = async (updatedUser: UserProfile) => {
-    try {
-      const savedUserFromServer = await getProfile(updatedUser);
-      setUser(savedUserFromServer);
-      const savedString = localStorage.getItem("currentUser");
-
-      if (savedString) {
-        const parsed = JSON.parse(savedString);
-
-        if (parsed.user) {
-          parsed.user = savedUserFromServer;
-          localStorage.setItem("currentUser", JSON.stringify(parsed));
-        } else {
-          localStorage.setItem(
-            "currentUser",
-            JSON.stringify(savedUserFromServer),
-          );
-        }
-      } else {
-        localStorage.setItem(
-          "currentUser",
-          JSON.stringify(savedUserFromServer),
-        );
-      }
-      setIsModalOpen(false);
-      alert("Profile updated successfully!");
-    } catch (err) {
-      alert("Failed to update profile ");
-    }
+  const avatar = user.name.trim().charAt(0).toUpperCase() || "?";
+  const handleSave = async (changes: ProfileInput) => {
+    setUser(await updateProfile(user.id, changes));
+    setEditing(false);
+    setSaved(true);
   };
 
   return (
-    <div className="min-h-[80vh] flex flex-col justify-center items-center p-4">
-      <div className="w-full sm:w-[400px] bg-movie-surface rounded-lg border border-[#b4b4b4] p-7.5 flex flex-col items-center">
-        <h2 className="text-2xl font-bold font-display mb-6 text-movie-text-main">
-          Your Profile
-        </h2>
-
-        <div className="w-22 h-22 rounded-full bg-movie-bg border border-gray-700 mb-6 flex items-center justify-center text-movie-accent">
-          <FaUserCircle className="w-full h-full text-movie-text-sec" />
+    <section className="page-shell max-w-2xl space-y-6">
+      <h1 className="page-title">Your profile</h1>
+      <div className="surface-panel space-y-6 p-6 sm:p-8">
+        <div className="flex min-w-0 items-center gap-4">
+          <span aria-hidden="true" className="grid size-14 shrink-0 place-items-center rounded-full bg-movie-accent/15 text-xl font-bold text-movie-accent">
+            {avatar}
+          </span>
+          <div className="min-w-0">
+            <p className="break-words text-xl font-semibold">{user.name}</p>
+            <p className="break-words text-sm text-movie-text-sec">@{user.username}</p>
+          </div>
         </div>
-
-        <div className="w-full text-left space-y-4 mb-8 bg-movie-bg/30 p-5 rounded border border-gray-700/50">
-          <p className="text-sm text-movie-text-main m-2 flex items-center">
-            <strong className="text-movie-text-sec font-medium inline-block w-24 shrink-0">
-              Name:
-            </strong>
-            <span className="text-movie-text-main">{user?.name}</span>
-          </p>
-
-          <p className="text-sm text-movie-text-main m-2 flex items-center">
-            <strong className="text-movie-text-sec font-medium inline-block w-24 shrink-0">
-              Username:
-            </strong>
-            <span className="text-movie-text-main">{user?.username}</span>
-          </p>
-
-          <p className="text-sm text-movie-text-main m-2 flex items-center">
-            <strong className="text-movie-text-sec font-medium inline-block w-24 shrink-0">
-              Email:
-            </strong>
-            <span className="text-movie-text-main truncate">{user?.email}</span>
-          </p>
-        </div>
-
-        <button
-          className="px-4 py-2 bg-movie-accent text-movie-text-main rounded font-medium cursor-pointer hover:bg-[#1b97b2] transition-colors"
-          onClick={() => setIsModalOpen(true)}
-        >
-          Edit Profile
+        <dl className="border-t border-movie-border pt-5">
+          <dt className="text-sm text-movie-text-sec">Email address</dt>
+          <dd className="mt-1 break-words">{user.email}</dd>
+        </dl>
+        <button className="button-primary" onClick={() => { setSaved(false); setEditing(true); }}>
+          Edit profile
         </button>
-
-        <EditProfileModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          user={user}
-          onSave={handleSaveChanges}
-        />
+        {saved && <p role="status" className="text-sm text-movie-accent">Profile updated.</p>}
       </div>
-    </div>
+
+      {editing && <EditProfileModal user={user} onClose={() => setEditing(false)} onSave={handleSave} />}
+    </section>
   );
 }
-
-export default ProfilePage;

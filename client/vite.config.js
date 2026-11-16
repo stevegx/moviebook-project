@@ -8,6 +8,11 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    proxy: {
+      "/api": "http://localhost:8000",
+    },
+  },
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),

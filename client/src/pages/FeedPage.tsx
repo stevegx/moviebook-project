@@ -4,24 +4,15 @@ import SideFeed from "@/components/Feed/SideFeed";
 
 export default function FeedPage() {
   return (
-    <div className="flex flex-col items-start gap-6 max-w-5xl w-full mx-auto px-4 py-6">
-      <div className="w-full max-w-2xl flex flex-col gap-4">
-        <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight ">
-          Recent Community Reviews
-        </h1>
-        
-        <PostFeed />
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-8 w-full justify-center items-start mt-4">
-        <div className="flex-1 max-w-2xl w-full">
+    <section className="page-shell space-y-6">
+      <h1 className="page-title">Community reviews</h1>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="min-w-0 space-y-6">
+          <PostFeed />
           <MainFeed />
         </div>
-
-        <div className="w-full lg:w-auto flex justify-center lg:justify-start">
-          <SideFeed />
-        </div>
+        <SideFeed />
       </div>
-    </div>
+    </section>
   );
 }

@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { ZodType } from 'zod'
-import { ValidationError } from '@/utils/errors'
+import { ValidationError } from '../utils/errors.js'
 
-const validate = (schema: ZodType<any, any, any>) => {
+const validate = (schema: ZodType<{ body: unknown }>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const parseData: Record<string, any> = {

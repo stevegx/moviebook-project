@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
-import type { UserInformationInput, UserPasswordInput } from './schema'
-import { schema } from '@/lib/database'
+import type { UserInformationInput, UserPasswordInput } from './schema.js'
+import { schema } from '../../lib/database/index.js'
 import bcrypt from 'bcrypt'
 
 class Controller {
@@ -9,7 +9,7 @@ class Controller {
   }
 
   async information(req: Request<{}, {}, UserInformationInput>, res: Response) {
-    const user = await schema.User.findByIdAndUpdate(req.user.id, req.body).lean()
+    const user = await schema.User.findByIdAndUpdate(req.user!.id, req.body, { returnDocument: 'after', runValidators: true }).lean()
 
     if (!user) {
       return res.status(404).json({
@@ -28,7 +28,7 @@ class Controller {
   }
 
   async password(req: Request<{}, {}, UserPasswordInput>, res: Response) {
-    const user = await schema.User.findById(req.user.id).select('+password')
+    const user = await schema.User.findById(req.user!.id).select('+password')
 
     if (!user) {
       return res.status(404).json({
@@ -36,7 +36,7 @@ class Controller {
       })
     }
 
-    const validPassword = await bcrypt.compare(req.user.password, user.password)
+    const validPassword = await bcrypt.compare(req.body.current_password, user.password)
 
     if (!validPassword) {
       return res.status(401).json({

@@ -1,162 +1,62 @@
-import React from "react";
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login, register } from "@/services/auth";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import FormInput from "../components/FormInput";
+import FormInput from "@/components/FormInput";
+import { useAuth } from "@/components/providers/AuthContext";
+import { register } from "@/services/auth";
 
-function RegisterPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    username: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
+export default function RegisterPage() {
+  const { setUser } = useAuth();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [form, setForm] = useState({
+    name: "", username: "", email: "", password: "", password_confirmation: "",
+  });
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrorMessage("");
-
-    if (!formData.name || !formData.email || !formData.password || !formData.username || !formData.password_confirmation) {
-        setErrorMessage("Please fill in all the fields.");
-        return;
-    }
-    if (formData.name.length < 3) {
-      setErrorMessage("Name must be at least 3 characters.");
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (form.password !== form.password_confirmation) {
+      setError("Passwords do not match.");
       return;
     }
-    if (formData.username.length < 4) {
-      setErrorMessage("Username must be at least 4 characters.");
-      return;
-    }
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(formData.email)) {
-      setErrorMessage("Invalid email format.");
-      return;
-    }
-    if (formData.password.length < 8) {
-      setErrorMessage("Password must be at least 8 characters.");
-      return;
-    }
-    if (formData.password !== formData.password_confirmation) {
-      setErrorMessage("Passwords do not match.");
-      return;
-    }
-
+    setError("");
+    setPending(true);
     try {
-      await register(formData);
-      await login({
-        email: formData.email,
-        password: formData.password,
-      });
-      window.dispatchEvent(new Event("authChange"));
+      setUser(await register(form));
       navigate("/");
-    } catch (error) {
-      setErrorMessage("Registration failed. Something went wrong.");
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Could not create your account.");
+    } finally {
+      setPending(false);
     }
-  };
+  }
 
   return (
-    <div className="min-h-[85vh] flex flex-col justify-center items-center py-10">
-      <div className="w-100 bg-movie-surface rounded-lg border border-[#b4b4b4] p-7.5 shadow-xl">
-        <h1 className="text-center mb-6 text-2xl font-bold font-display text-movie-text-main">Register</h1>
-
-        <form onSubmit={handleRegister}>
-          <FormInput
-            label="Name:"
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Enter your name"
-          />
-          <FormInput
-            label="Username:"
-            type="text"
-            value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-            placeholder="Enter your username"
-          />
-          <FormInput
-            label="Email:"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="Enter your email"
-          />
-
-          <div className="relative">
-            <FormInput
-              label="Password:"
-              type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="Enter your password"
-            />
-
-            <span
-              className="absolute right-[12px] bottom-[14px] cursor-pointer text-movie-text-sec"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEye /> : <FaEyeSlash />}
-            </span>
-          </div>
-
-          <div className="relative">
-            <FormInput
-              label="Confirm Password:"
-              type={showPassword ? "text" : "password"}
-              value={formData.password_confirmation}
-              onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })}
-              placeholder="Confirm password"
-            />
-
-            <span
-              className="absolute right-3 bottom-3.5 cursor-pointer text-movie-text-sec"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEye /> : <FaEyeSlash />}
-            </span>
-          </div>
-
-          {errorMessage && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-500 text-red-200 text-sm rounded text-center">
-              {errorMessage}
-            </div>
-          )}
-
-          <div className="flex justify-between items-center mt-6">
-            <button 
-              className="px-6 py-2.5 bg-movie-accent text-movie-text-main rounded cursor-pointer hover:bg-[#1b97b2] transition-colors font-bold" 
-              type="submit"
-            >
-              Create Account
-            </button>
-
-            <Link 
-              to="/" 
-              className="px-4 py-2 text-sm border border-gray-600 text-movie-text-main rounded hover:bg-movie-bg transition-colors cursor-pointer font-medium"
-            >
-              Back to Home
-            </Link>
-          </div>
-
+    <section className="auth-page">
+      <div className="auth-panel">
+        <Link className="text-link text-sm" to="/">MovieBook</Link>
+        <h1 className="page-title mt-3">Create an account</h1>
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          <FormInput label="Name" autoComplete="name" required minLength={3}
+            value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+          <FormInput label="Username" autoComplete="username" required minLength={4}
+            value={form.username} onChange={(event) => setForm({ ...form, username: event.target.value })} />
+          <FormInput label="Email address" type="email" autoComplete="email" required
+            value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
+          <FormInput label="Password" type="password" autoComplete="new-password" required minLength={8}
+            value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
+          <FormInput label="Confirm password" type="password" autoComplete="new-password" required minLength={8}
+            value={form.password_confirmation} onChange={(event) => setForm({ ...form, password_confirmation: event.target.value })} />
+          {error && <p className="form-error" role="alert">{error}</p>}
+          <button type="submit" className="button-primary w-full" disabled={pending}>
+            {pending ? "Creating account…" : "Create account"}
+          </button>
         </form>
-
-        <p className="mt-7.5 mb-0 text-sm">
-          Already have an account?
-          <Link className="inline-block ml-2 text-movie-accent text-sm no-underline" to="/login">
-            Login
-          </Link>
+        <p className="mt-6 text-sm text-movie-text-sec">
+          Already have an account? <Link className="text-link" to="/login">Log in</Link>
         </p>
-        
       </div>
-    </div>
+    </section>
   );
 }
-
-
-export default RegisterPage;

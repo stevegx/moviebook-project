@@ -10,7 +10,7 @@ const safeFetchMovies = (url: string) =>
       if (!res.ok) return { results: [] };
       return res.json();
     })
-    .catch(() => ({ Appresults: [] }));
+    .catch(() => ({ results: [] }));
 
 const popularPromise = safeFetchMovies(`${API_URL}/movies/list?type=popular`);
 const topRatedPromise = safeFetchMovies(`${API_URL}/movies/list?type=top_rated`);
@@ -24,10 +24,7 @@ function HomePage() {
   const nowPlayingData = use(nowPlayingPromise);
 
   const trending = popularData.results || [];
-  const randomBackdrops = trending
-    .filter((movie: any) => movie.backdrop_path)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 3);
+  const featuredBackdrops = trending.filter((movie: any) => movie.backdrop_path).slice(0, 3);
   const topRated = topRatedData.results || [];
   const upcoming = upcomingData.results || [];
   const nowPlaying = nowPlayingData.results || [];
@@ -48,7 +45,7 @@ function HomePage() {
     const delayDebounceFn = setTimeout(async () => {
       try {
         setSearchLoading(true);
-        const response = await fetch(`${API_URL}/movies/search?query=${urlSearchQuery}`);
+        const response = await fetch(`${API_URL}/movies/search?query=${encodeURIComponent(urlSearchQuery)}`);
         const data = await response.json();
         setSearchResults(data.results || []);
       } catch (err) {
@@ -64,130 +61,111 @@ function HomePage() {
   const isSearching = urlSearchQuery && urlSearchQuery.trim() !== "";
 
   return (
-    <div className="min-h-screen text-movie-text-main font-body relative">
-      <div
-        className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full pointer-events-none z-0"
-        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)" }}
-      />
-      <div
-        className="absolute bottom-[40%] left-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
-      />
-      <div 
-        className="absolute bottom-[-200px] right-[-200px] w-[700px] h-[700px] rounded-full pointer-events-none z-0"
-        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)" }}
-      />
-      <div
-        className="absolute top-[40%] right-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
-      />
+    <div className="page-shell">
+      {isSearching ? (
+        <div className="space-y-6">
+          <h1 className="page-title">
+            Search Results for:{" "}
+            <span className="text-movie-accent">"{urlSearchQuery}"</span>
+          </h1>
+          {searchLoading ? (
+            <p className="text-movie-accent animate-pulse">Searching...</p>
+          ) : (
+            <MovieSection movies={searchResults} />
+          )}
+        </div>
+      ) : (
+        <>
+          <HeroBanner backdrops={featuredBackdrops} />
 
-      <main className="w-full px-16 py-14 relative z-10">
-        {isSearching ? (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold font-display">
-              Search Results for:{" "}
-              <span className="text-movie-accent">"{urlSearchQuery}"</span>
-            </h2>
-            {searchLoading ? (
-              <p className="text-movie-accent animate-pulse">Searching...</p>
-            ) : (
-              <MovieSection movies={searchResults} />
-            )}
-          </div>
-        ) : (
-          <>
-            <HeroBanner backdrops={randomBackdrops} />
+          <div className="mt-8 space-y-10 sm:mt-10">
+            <div className="flex flex-col gap-8">
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-x-4 border-b border-movie-border pb-2">
+                  <h2 className="section-title">
+                    Popular
+                  </h2>
 
-            <div className="space-y-10 mt-10">
-              <div className="max-w-7xl mx-auto flex flex-col gap-8">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-end border-b border-gray-800 pb-2">
-                    <h2 className="text-2xl font-bold font-display text-movie-text-main">
-                      Popular
-                    </h2>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <button
+                      disabled={currentTrendingPage === 0}
+                      onClick={() =>
+                        setCurrentTrendingPage((prev) => prev - 1)
+                      }
+                      className={`inline-flex min-h-11 items-center text-sm font-semibold transition-colors ${
+                        currentTrendingPage === 0
+                          ? "text-movie-text-sec/65"
+                          : "text-movie-accent hover:text-movie-accent-hover cursor-pointer"
+                      }`}
+                    >
+                      ← Previous
+                    </button>
 
-                    <div className="flex items-center space-x-4">
-                      <button
-                        disabled={currentTrendingPage === 0}
-                        onClick={() =>
-                          setCurrentTrendingPage((prev) => prev - 1)
-                        }
-                        className={`text-sm font-semibold transition-colors focus:outline-none ${
-                          currentTrendingPage === 0
-                            ? "text-gray-600"
-                            : "text-movie-accent hover:text-[#1b97b2] cursor-pointer"
-                        }`}
-                      >
-                        ← Previous
-                      </button>
+                    <span className="text-xs text-movie-text-sec font-medium">
+                      Page {currentTrendingPage + 1}
+                    </span>
 
-                      <span className="text-xs text-gray-500 font-medium">
-                        Page {currentTrendingPage + 1}
-                      </span>
-
-                      <button
-                        disabled={
-                          (currentTrendingPage + 1) * moviesPerPage >=
-                          trending.length
-                        }
-                        onClick={() =>
-                          setCurrentTrendingPage((prev) => prev - 1 + 2)
-                        }
-                        className={`text-sm font-semibold transition-colors focus:outline-none ${
-                          (currentTrendingPage + 1) * moviesPerPage >=
-                          trending.length
-                            ? "text-gray-600"
-                            : "text-movie-accent hover:text-[#1b97b2] cursor-pointer"
-                        }`}
-                      >
-                        Next →
-                      </button>
-                    </div>
+                    <button
+                      disabled={
+                        (currentTrendingPage + 1) * moviesPerPage >=
+                        trending.length
+                      }
+                      onClick={() =>
+                        setCurrentTrendingPage((prev) => prev + 1)
+                      }
+                      className={`inline-flex min-h-11 items-center text-sm font-semibold transition-colors ${
+                        (currentTrendingPage + 1) * moviesPerPage >=
+                        trending.length
+                          ? "text-movie-text-sec/65"
+                          : "text-movie-accent hover:text-movie-accent-hover cursor-pointer"
+                      }`}
+                    >
+                      Next →
+                    </button>
                   </div>
-
-                  <MovieSection
-                    movies={trending.slice(
-                      currentTrendingPage * moviesPerPage,
-                      (currentTrendingPage + 1) * moviesPerPage,
-                    )}
-                  />
                 </div>
 
-                <div className="space-y-4">
-                  <div className="border-b border-gray-800 pb-2">
-                    <h2 className="text-2xl font-bold font-display text-movie-text-main">
-                      Top Rated
-                    </h2>
-                  </div>
+                <MovieSection
+                  movies={trending.slice(
+                    currentTrendingPage * moviesPerPage,
+                    (currentTrendingPage + 1) * moviesPerPage,
+                  )}
+                />
+              </div>
 
-                  <MovieSection movies={topRated} />
+              <div className="space-y-4">
+                <div className="border-b border-movie-border pb-3">
+                  <h2 className="section-title">
+                    Top Rated
+                  </h2>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="border-b border-gray-800 pb-2">
-                    <h2 className="text-2xl font-bold font-display text-movie-text-main">
-                      Now Playing
-                    </h2>
-                  </div>
+                <MovieSection movies={topRated} />
+              </div>
 
-                  <MovieSection movies={nowPlaying} />
+              <div className="space-y-4">
+                <div className="border-b border-movie-border pb-3">
+                  <h2 className="section-title">
+                    Now Playing
+                  </h2>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="border-b border-gray-800 pb-2">
-                    <h2 className="text-2xl font-bold font-display text-movie-text-main">
-                      Upcoming
-                    </h2>
-                  </div>
+                <MovieSection movies={nowPlaying} />
+              </div>
 
-                  <MovieSection movies={upcoming} />
+              <div className="space-y-4">
+                <div className="border-b border-movie-border pb-3">
+                  <h2 className="section-title">
+                    Upcoming
+                  </h2>
                 </div>
+
+                <MovieSection movies={upcoming} />
               </div>
             </div>
-          </>
-        )}
-      </main>
+          </div>
+        </>
+      )}
     </div>
   );
 }

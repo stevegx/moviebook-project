@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import controller from './controller'
-import { auth, validator } from '@/middlewares'
-import schema from './schema'
+import controller from './controller.js'
+import { auth, validator } from '../../middlewares/index.js'
+import schema from './schema.js'
 
 const router: Router = Router()
 

@@ -1,96 +1,39 @@
-import { API_URL } from '@/config'
+import { API_URL } from "@/config";
 
-export const register = async (credentials: {
+export interface UserProfile {
+  id: string;
   name: string;
   username: string;
   email: string;
-  password: string;
-  password_confirmation: string;
-}) => {
-  try {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
+  avatarUrl?: string;
+}
 
-    if (!response.ok) {
-      throw new Error("Registration failed");
-    }
-  } catch (error) {
-    throw error;
-  }
-};
+export type ProfileInput = Pick<UserProfile, "name" | "username" | "email">;
 
-export const login = async (credentials: {
-  email: string;
-  password: string;
-}) => {
-  try {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
+type Credentials = { email: string; password: string };
+type Registration = Credentials & ProfileInput & { password_confirmation: string };
 
-    if (!response.ok) {
-      throw new Error("Login failed");
-    }
-  } catch (error) {
-    throw error;
-  }
-};
+async function request<T>(path: string, method = "GET", body?: object): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method,
+    credentials: "include",
+    headers: body ? { "Content-Type": "application/json" } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Request failed");
+  return data;
+}
 
-export const user = async (updatedData?: {
-  name: string;
-  username: string;
-  email: string;
-}) => {
-  try {
-    const method = updatedData ? "POST" : "GET";
+export const register = (credentials: Registration) =>
+  request<UserProfile>("/auth/register", "POST", credentials);
 
-    const response = await fetch(`${API_URL}/user`, {
-      method: method,
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: updatedData ? JSON.stringify(updatedData) : undefined,
-    });
+export const login = (credentials: Credentials) =>
+  request<UserProfile>("/auth/login", "POST", credentials);
 
-    const data = await response.json();
+export const user = () => request<UserProfile>("/user");
 
-    if (!response.ok) {
-      throw new Error(data?.message || "Credential failed");
-    }
+export const updateProfile = (id: string, changes: ProfileInput) =>
+  request<UserProfile>(`/user/${encodeURIComponent(id)}/information`, "PATCH", changes);
 
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const logout = async () => {
-  try {
-    const response = await fetch(`${API_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Logout failed");
-    }
-  } catch (error) {
-    throw error;
-  }
-};
+export const logout = () => request<{ message: string }>("/auth/logout", "POST");

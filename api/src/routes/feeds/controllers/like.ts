@@ -1,12 +1,12 @@
 import type { Request, Response, NextFunction } from 'express'
-import { FeedLike } from '@/lib/database/schema'
+import { FeedLike } from '../../../lib/database/schema.js'
 
 class Controller {
   async index(req: Request, res: Response, next: NextFunction) {
     try {
       const likes = await FeedLike
         .find({ feed: req.params.feed as string })
-        .populate('user', '-password')
+        .populate('user', 'name username')
         .lean()
 
       return res.json(likes)
@@ -30,11 +30,11 @@ class Controller {
   async store(req: Request, res: Response, next: NextFunction) {
     try {
       const like = await FeedLike.create({
-        user: req.user.id,
+        user: req.user!.id,
         feed: req.params.feed as string,
       })
       
-      const populatedLike = await like.populate('user', '-password')
+      const populatedLike = await like.populate('user', 'name username')
 
       return res.status(201).json(populatedLike)
     } catch (error) {
@@ -42,11 +42,11 @@ class Controller {
     }
   }
 
-  async destroy(req: Request, res: Response, next: NextFunction) {
+  async destroy(req: Request<{ id: string; feed: string }>, res: Response, next: NextFunction) {
     try {
       const like = await FeedLike
-      .findByIdAndDelete(req.params.id)
-        .populate('user', '-password')
+        .findOneAndDelete({ _id: req.params.id, feed: req.params.feed, user: req.user!.id })
+        .populate('user', 'name username')
         .lean()
 
       if (!like) {

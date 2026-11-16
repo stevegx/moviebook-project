@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import { Movie } from '../services'
+import { Movie } from '../services/index.js'
 
 class Controller {
   async list(req: Request, res: Response) {
@@ -11,7 +11,8 @@ class Controller {
 
       return res.json(data)
     } catch (error) {
-      return res.status(500).json(error)
+      console.error(error)
+      return res.status(502).json({ message: 'Could not load movies from TMDB' })
     }
   }
 
@@ -24,7 +25,8 @@ class Controller {
 
       return res.json(data)
     } catch (error) {
-      return res.status(500).json(error)
+      console.error(error)
+      return res.status(502).json({ message: 'Could not load movies from TMDB' })
     }
   }
 
@@ -34,7 +36,21 @@ class Controller {
 
       return res.json(data)
     } catch (error) {
-      return res.status(500).json(error)
+      console.error(error)
+      return res.status(502).json({ message: 'Could not load movies from TMDB' })
+    }
+  }
+
+  async trailer(req: Request<{ id: string }>, res: Response) {
+    const { id } = req.params
+    if (!/^[1-9]\d{0,9}$/.test(id) || Number(id) > 2147483647) {
+      return res.status(400).json({ message: 'Invalid movie ID' })
+    }
+    try {
+      return res.json(await Movie.trailer(id))
+    } catch (error) {
+      console.error(error)
+      return res.status(502).json({ message: 'Could not load the trailer from TMDB' })
     }
   }
 
@@ -44,7 +60,8 @@ class Controller {
 
       return res.json(data)
     } catch (error) {
-      return res.status(500).json(error)
+      console.error(error)
+      return res.status(502).json({ message: 'Could not load movies from TMDB' })
     }
   }
 }

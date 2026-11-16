@@ -29,36 +29,35 @@ function HeroBanner({ backdrops }: { backdrops: any[] }) {
   }, []);
 
   const currentSlide = heroSlides[activeSlide];
+  const backdrop = backdrops[activeSlide]?.backdrop_path;
 
   return (
- <section 
-  
-  className="w-full mx-auto mb-12 px-12 py-32 rounded-2xl border border-movie-accent shadow-lg text-left bg-cover bg-center transition-all duration-1000"
- style={{
-    backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(https://image.tmdb.org/t/p/original${backdrops[activeSlide]?.backdrop_path})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center top'
-}}
->
-      <h2 className="text-5xl font-bold text-movie-accent mb-4">
+    <section
+      className="surface-panel flex min-h-72 flex-col justify-center bg-cover bg-center p-6 sm:min-h-96 sm:p-12"
+      style={backdrop ? {
+        backgroundImage: `linear-gradient(90deg, rgba(8,14,25,.97), rgba(8,14,25,.45)), url(https://image.tmdb.org/t/p/w1280${backdrop})`,
+      } : undefined}
+    >
+      <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-6xl">
         {currentSlide.title}
-      </h2>
+      </h1>
 
-      <p className="text-movie-text-sec text-lg max-w-md">
+      <p className="max-w-md text-base text-movie-text-sec sm:text-lg">
         {currentSlide.description}
       </p>
 
-      <div className="mt-8 flex gap-3">
+      <div className="mt-5 flex gap-1">
         {heroSlides.map((slide, index) => (
           <button
             key={slide.title}
             onClick={() => setActiveSlide(index)}
-            className={`w-3 h-3 rounded-full border border-movie-accent cursor-pointer transition-all ${
+            className={`grid size-11 place-items-center rounded-lg before:size-2.5 before:rounded-full before:border before:border-movie-accent ${
               activeSlide === index
-                ? "bg-movie-accent scale-125"
-                : "bg-transparent"
+                ? "before:bg-movie-accent"
+                : "before:bg-transparent"
             }`}
             aria-label={`Go to slide ${index + 1}`}
+            aria-pressed={activeSlide === index}
           />
         ))}
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ProfPic from "@/assets/ProfPic.png";
+import ProfPic from "@/Assets/ProfPic.png";
 import { API_URL } from "@/config";
 
 interface Comment {
@@ -114,7 +114,7 @@ export default function CommentDialog({
         onClick={onClose}
       />
 
-      <div className="bg-movie-dark border border-movie-border/80 w-full max-w-xl rounded-xl shadow-2xl relative z-10 flex flex-col max-h-[90vh]">
+      <div className="surface-panel relative z-10 flex max-h-[90dvh] w-full max-w-xl flex-col shadow-2xl">
         <div className="p-4 border-b border-movie-border/40 bg-movie-bg/80 rounded-t-xl flex flex-col gap-4">
           <div className="flex justify-between items-start">
             <div className="flex gap-3 items-center">
@@ -163,7 +163,7 @@ export default function CommentDialog({
         </div>
 
         {/* COMMENTS AREA */}
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-movie-dark/50">
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-movie-input">
           {rootComments.length === 0 ? (
             <p className="text-xs text-movie-text-sec/40 text-center py-8 italic">
               No comments yet. Be the first to reply!
@@ -284,12 +284,12 @@ export default function CommentDialog({
               }
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="flex-1 bg-movie-surface/40 border border-movie-border/60 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-movie-accent"
+              className="input-control min-w-0 flex-1"
             />
             <button
               type="submit"
               disabled={loading || !newComment.trim()}
-              className="bg-movie-accent text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 disabled:opacity-40 cursor-pointer"
+              className="button-primary"
             >
               {replyToComment ? "Reply" : "Send"}
             </button>
