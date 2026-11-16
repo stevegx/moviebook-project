@@ -1,64 +1,61 @@
 @import "tailwindcss";
 
 @theme {
-  --color-movie-bg: #070b14;
-  --color-movie-surface: #0d1525;
-  --color-movie-accent: #14b2d6;
-  --color-movie-text-main: #ffffff;
-  --color-movie-text-sec: #99aab5;
-  --color-movie-highlight: #ffc107;
-  --color-movie-border: #14b2d633;
-  --font-display: "Inter", sans-serif;
-  --font-body: "Roboto", sans-serif;
+  --color-movie-bg: #080e19;
+  --color-movie-surface: #101b2c;
+  --color-movie-input: #0a1321;
+  --color-movie-accent: #46cee3;
+  --color-movie-accent-hover: #79e3f1;
+  --color-movie-accent-ink: #07131a;
+  --color-movie-text-main: #f4f7fc;
+  --color-movie-text-sec: #a9b8cc;
+  --color-movie-highlight: #f8c758;
+  --color-movie-border: #2b3a50;
+  --font-body: system-ui, sans-serif;
+  --font-display: system-ui, sans-serif;
 }
 
 @layer base {
-  body {
-    @apply bg-movie-bg text-movie-text-main antialiased;
+  body { @apply m-0 bg-movie-bg font-body text-movie-text-main antialiased; }
+  button:not(:disabled) { @apply cursor-pointer; }
+  :focus-visible { @apply outline-2 outline-offset-3 outline-movie-accent; }
+}
+
+@layer components {
+  .page-shell { @apply mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12; }
+  .page-title { @apply text-3xl leading-tight font-bold tracking-tight sm:text-4xl; }
+  .section-title { @apply text-xl leading-snug font-semibold tracking-tight sm:text-2xl; }
+  .surface-panel { @apply rounded-2xl border border-movie-border bg-movie-surface; }
+  .auth-page { @apply mx-auto grid min-h-dvh w-full max-w-7xl place-items-center px-4 py-8 sm:px-6; }
+  .auth-panel { @apply w-full rounded-2xl border border-movie-border bg-movie-surface max-w-md p-5 shadow-xl sm:p-8; }
+  .button-primary,
+  .button-secondary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 py-2 text-center text-sm font-semibold transition-colors;
   }
+  .button-primary {
+    @apply border-transparent bg-movie-accent text-movie-accent-ink hover:bg-movie-accent-hover;
+  }
+  .button-secondary {
+    @apply border-movie-border bg-movie-surface text-movie-text-main hover:border-movie-accent hover:text-movie-accent;
+  }
+  .button-primary:disabled,
+  .button-secondary:disabled { @apply cursor-not-allowed opacity-55; }
+  .form-label { @apply block space-y-1.5 text-sm font-medium text-movie-text-main; }
+  .input-control {
+    @apply w-full min-h-11 rounded-lg border border-movie-border bg-movie-input px-3 py-2 text-sm text-movie-text-main placeholder:text-movie-text-sec;
+  }
+  .form-error { @apply rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200; }
+  .modal-panel {
+    @apply fixed rounded-2xl border border-movie-border bg-movie-surface inset-0 m-auto max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto p-5 text-movie-text-main shadow-2xl sm:p-6;
+  }
+  .modal-panel::backdrop { @apply bg-black/70; }
+  .text-link { @apply font-semibold text-movie-accent hover:underline; }
+  .movie-grid {
+    @apply grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5;
+  }
+  .movie-card { @apply min-w-0 rounded-2xl border border-movie-border bg-movie-surface overflow-hidden transition-colors hover:border-movie-accent; }
 }
 
-.movie-card {
-  background-color: #1c252d;
-  width: 230px;
-  padding: 24px;
-  border-radius: 12px;
-  border: 1px solid rgba(20, 178, 214, 0.6);
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.movie-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 20px rgba(20, 178, 214, 0.3);
-}
-
-.movie-poster {
-  height: 120px;
-  background: linear-gradient(135deg, #12344a, #14b2d6);
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 40px;
-  margin-bottom: 10px;
-  height: 150px;
-}
-
-.movie-info h3 {
-  color: white;
-  font-size: 18px;
-  margin: 0 0 8px;
-}
-
-.movie-meta {
-  color: #99aab5;
-  font-size: 14px;
-  margin: 0 0 8px;
-}
-
-.movie-rating {
-  color: #c1cdd6;
-  font-size: 15px;
-  margin: 0;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

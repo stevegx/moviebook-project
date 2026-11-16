@@ -1,128 +1,50 @@
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "@/services/auth";
-import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import FormInput from "@/components/FormInput";
+import { useAuth } from "@/components/providers/AuthContext";
+import { login } from "@/services/auth";
 
-function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+export default function LoginPage() {
+  const { setUser } = useAuth();
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrorMessage("");
-
-    if (!formData.email || !formData.password) {
-      setErrorMessage("Please fill in all the fields.");
-      return;
-    }
-
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setPending(true);
     try {
-      await login(formData);
-      window.dispatchEvent(new Event("authChange"));
+      setUser(await login(form));
       navigate("/");
-    } catch (error) {
-      setErrorMessage("Invalid email or password.");
+    } catch {
+      setError("Unable to log in. Check your email and password and try again.");
+    } finally {
+      setPending(false);
     }
-  };
+  }
 
   return (
-    <div className="min-h-[85vh] flex flex-col justify-center items-center py-10">
-      <div
-        className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full pointer-events-none z-0"
-        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.3) 0%, transparent 70%)" }}
-      />
-      <div
-        className="absolute bottom-[40%] left-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
-      />
-      <div 
-        className="absolute bottom-[-200px] right-[-200px] w-[700px] h-[700px] rounded-full pointer-events-none z-0"
-        style={{ background: "radial-gradient(circle, rgba(20,178,214,0.25) 0%, transparent 70%)" }}
-      />
-      <div
-        className="absolute top-[40%] right-[-300px] w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{ background: "radial-gradient(circle, rgba(100,50,214,0.4) 0%, transparent 70%)" }}
-      />
-      
-      <div className="w-100 bg-movie-surface rounded-lg border border-[#b4b4b4] p-7.5 shadow-xl">
-        <h1 className="text-center mb-6 text-2xl font-bold font-display text-movie-text-main">
-          Welcome Back
-        </h1>
-
-        <form onSubmit={handleLogin}>
-          <FormInput
-            icon={<FaUser />}
-            label="Email:"
-            type="text"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            placeholder="Email Address"
-          />
-          <div className="relative">
-            <FormInput
-              icon={<FaLock />}
-              label="Password:"
-              type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              placeholder="Password"
-            />
-
-            <span
-              className="absolute right-3 bottom-3.5 cursor-pointer text-movie-text-sec"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEye /> : <FaEyeSlash />}
-            </span>
-          </div>
-
-          {errorMessage && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-500 text-red-200 text-sm rounded text-center">
-              {errorMessage}
-            </div>
-          )}
-
-          <div className="flex justify-between items-center mt-6">
-            <button
-              className="px-6 py-2.5 bg-movie-accent text-movie-text-main rounded cursor-pointer hover:bg-[#1b97b2] transition-colors font-bold"
-              type="submit"
-            >
-              Login
-            </button>
-
-            <button
-              className="px-4 py-2 text-sm border border-gray-600 text-movie-text-main rounded hover:bg-movie-bg transition-colors cursor-pointer font-medium"
-              onClick={() => navigate("/")}
-              type="button"
-            >
-              Back to Home
-            </button>
-          </div>
+    <section className="auth-page">
+      <div className="auth-panel">
+        <Link className="text-link text-sm" to="/">MovieBook</Link>
+        <h1 className="page-title mt-3">Welcome back</h1>
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          <FormInput label="Email address" type="email" autoComplete="email" required
+            value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
+          <FormInput label="Password" type="password" autoComplete="current-password" required
+            value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
+          {error && <p className="form-error" role="alert">{error}</p>}
+          <button type="submit" className="button-primary w-full" disabled={pending}>
+            {pending ? "Logging in…" : "Log in"}
+          </button>
         </form>
-
-        <p className="mt-7.5 mb-0 text-sm">
-          Don't have an account?
-          <Link
-            className="inline-block ml-2 text-movie-accent text-sm no-underline"
-            to="/register"
-          >
-            Register
-          </Link>
+        <p className="mt-6 text-sm text-movie-text-sec">
+          Don't have an account? <Link className="text-link" to="/register">Register</Link>
         </p>
       </div>
-    </div>
+    </section>
   );
 }
-
-export default LoginPage;

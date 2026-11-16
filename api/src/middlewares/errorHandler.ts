@@ -1,5 +1,5 @@
 import { type Request, type Response, type NextFunction } from 'express'
-import { HttpError, ValidationError } from '@/utils/errors'
+import { HttpError, ValidationError } from '../utils/errors.js'
 
 const errorHandler = (
   error: any,
@@ -62,8 +62,9 @@ const errorHandler = (
   }
 
   // Default error response
+  console.error(error)
   res.status(500).json({
-    message: error.message || 'Internal server error',
+    message: 'Internal server error',
     statusCode: 500,
   })
 }

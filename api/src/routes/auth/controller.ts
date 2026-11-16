@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import type { LoginInput, RegisterInput } from "./schema";
+import type { LoginInput, RegisterInput } from "./schema.js";
 import bcrypt from "bcrypt";
-import { cookieOptions, generateToken } from "./utils";
-import { schema } from "@/lib/database";
+import { cookieOptions, generateToken } from "./utils.js";
+import { schema } from "../../lib/database/index.js";
 
 class Controller {
   async login(req: Request<{}, {}, LoginInput>, res: Response) {
@@ -11,8 +11,8 @@ class Controller {
     const user = await schema.User.findOne({ email }).lean();
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
+      return res.status(401).json({
+        message: "Invalid credentials",
       });
     }
 
@@ -73,7 +73,8 @@ class Controller {
   }
 
   async logout(req: Request, res: Response) {
-    res.cookie("token", "", { ...cookieOptions, maxAge: 1 });
+    const { httpOnly, secure, sameSite } = cookieOptions;
+    res.clearCookie("token", { httpOnly, secure, sameSite });
     res.json({ message: "Logged out successfully" });
   }
 }

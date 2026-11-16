@@ -10,6 +10,7 @@ const userInformationUpdate = z.object({
 
 const userPasswordUpdate = z.object({
   body: z.object({
+    current_password: z.string().min(1, 'Current password is required.'),
     password: z.string().min(8, 'Password must be at least 8 characters long.'),
     password_confirmation: z.string().min(8, 'Confirmation password must be at least 8 characters long.'),
   }).refine((data) => data.password === data.password_confirmation, {

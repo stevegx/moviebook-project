@@ -55,21 +55,22 @@ function Navbar({
   };
 
   return (
-    <nav className="w-full sticky top-0 z-50 bg-movie-surface border-b border-gray-800 px-8 py-4 flex justify-between items-center shadow-lg">
-      <div className="flex items-center space-x-8">
-        <Link to="/" className="flex items-center gap-2 text-2xl font-bold font-display text-movie-accent tracking-wide cursor-pointer select-none">
+    <nav aria-label="Main navigation" className="sticky top-0 z-50 border-b border-movie-border bg-movie-surface">
+      <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-2 sm:px-6 lg:flex-nowrap lg:gap-5 lg:px-8">
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 sm:gap-x-5">
+        <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tight text-movie-accent sm:text-2xl">
           <FaFilm />
           MovieBook
         </Link>
 
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => {
               setIsDropdownOpen(false);
               setSearchQuery("");
               navigate("/");
             }}
-            className="text-lg font-medium text-movie-text-main hover:text-movie-accent transition-colors cursor-pointer"
+            className="inline-flex min-h-11 items-center rounded text-sm font-semibold transition-colors hover:text-movie-accent"
           >
             Home
           </button>
@@ -83,38 +84,39 @@ function Navbar({
                 setIsAuthModalOpen(true);
               }
             }}
-            className="text-lg font-medium text-movie-text-main hover:text-movie-accent transition-colors cursor-pointer"
+            className="inline-flex min-h-11 items-center rounded text-sm font-semibold transition-colors hover:text-movie-accent"
           >
             Feed
           </button>
         </div>
       </div>
       
-      <form onSubmit={handleSearchSubmit} className="relative w-64 md:w-100">
+      <form onSubmit={handleSearchSubmit} role="search" className="relative order-3 w-full lg:order-none lg:max-w-sm lg:flex-1">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
           <FaSearch />
         </div>
         <input
-          type="text"
+          type="search"
+          aria-label="Search movies"
           placeholder="Search movies..."
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
             navigate(`/?search=${encodeURIComponent(e.target.value)}`);
           }}
-          className="w-full h-10 pl-10 pr-5 bg-movie-bg text-white border border-gray-700 rounded-lg text-sm text-left outline-none focus:border-movie-accent transition-all"
+          className="input-control pl-10"
         />
       </form>
 
-      <div className="flex items-center gap-x-6">
+      <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-0">
         {!isLoggedIn && (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setIsDropdownOpen(false);
                 navigate("/login");
               }}
-              className="px-4 py-2 text-sm text-movie-text-main hover:text-movie-accent transition-colors font-bold cursor-pointer"
+              className="inline-flex min-h-11 items-center rounded px-1.5 text-sm font-semibold hover:text-movie-accent sm:px-3"
             >
               Login
             </button>
@@ -123,7 +125,7 @@ function Navbar({
                 setIsDropdownOpen(false);
                 navigate("/register");
               }}
-              className="px-4 py-2 text-sm bg-movie-accent text-movie-text-main rounded-md font-bold cursor-pointer"
+              className="button-primary px-2.5 sm:px-4"
             >
               Register
             </button>
@@ -132,7 +134,7 @@ function Navbar({
 
         {isLoggedIn && (
           <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-gray-400 hidden md:block select-none">
+            <span className="hidden max-w-36 truncate text-sm text-movie-text-sec xl:block">
               Welcome,{" "}
               <span className="text-movie-accent font-semibold">
                 {currentUser?.username}
@@ -141,8 +143,10 @@ function Navbar({
 
             <div className="relative" ref={dropdownRef}>
               <button
+                aria-label="Account menu"
+                aria-expanded={isDropdownOpen}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 text-movie-accent hover:ring-2 hover:ring-movie-accent transition-all cursor-pointer overflow-hidden focus:outline-none"
+                className="grid size-11 place-items-center overflow-hidden rounded-full bg-movie-input text-movie-accent transition-colors hover:bg-movie-border"
               >
                 {currentUser?.avatarUrl ? (
                   <img
@@ -151,13 +155,13 @@ function Navbar({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <FaUserCircle className="w-full h-full text-2xl" />
+                  <FaUserCircle className="size-8" />
                 )}
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-3 w-48 bg-movie-surface border border-gray-800 rounded-lg shadow-2xl py-2 z-50 translate-x-1">
-                  <div className="px-4 py-2 border-b border-gray-800 font-medium text-movie-text-sec text-xs tracking-wider">
+                <div className="surface-panel absolute right-0 z-50 mt-3 w-48 py-2 shadow-2xl">
+                  <div className="px-4 py-2 border-b border-movie-border font-medium text-movie-text-sec text-xs tracking-wider">
                     User Menu
                   </div>
 
@@ -197,6 +201,7 @@ function Navbar({
         )}
       </div>
 
+      </div>
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}

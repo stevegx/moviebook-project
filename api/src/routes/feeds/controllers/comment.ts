@@ -1,13 +1,13 @@
 import type { Request, Response } from 'express'
-import { FeedComment } from '@/lib/database/schema'
-import type { FeedCommentInput } from '../schema'
+import { FeedComment } from '../../../lib/database/schema.js'
+import type { FeedCommentInput } from '../schema.js'
 
 class Controller {
   async index(req: Request, res: Response) {
     try {
       const page = Math.max(1, parseInt(String(req.query.page || '1'), 10))
       const limit = Math.max(1, parseInt(String(req.query.limit || '10'), 10))
-      const comments = await FeedComment.find({ feed: req.params.feed as string }).populate('user', '-password').lean()
+      const comments = await FeedComment.find({ feed: req.params.feed as string }).populate('user', 'name username').lean()
       
       const buildCommentTree = (comments: any[]): any[] => {
         const commentMap = new Map(comments.map(c => [c._id.toString(), { ...c, replies: [] }]))
@@ -42,7 +42,8 @@ class Controller {
         total_pages: totalPages,
       })
     } catch (error) {
-      return res.status(500).json({ error })
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
     }
   }
 
@@ -56,30 +57,36 @@ class Controller {
 
       return res.json(comment)
     } catch (error) {
-      return res.status(500).json({ error })
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
     }
   }
 
   async store(req: Request<{ feed: string }, {}, FeedCommentInput>, res: Response) {
     try {
       const comment = await FeedComment.create({
-        user: req.user.id,
+        user: req.user!.id,
         feed: req.params.feed,
         content: req.body.content,
         parent: req.body.parent || null
       })
 
-      const populatedComment = await comment.populate('user', '-password')
+      const populatedComment = await comment.populate('user', 'name username')
 
       return res.status(201).json(populatedComment)
     } catch (error) {
-      return res.status(500).json({ error })
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
     }
   }
 
-  async update(req: Request<{ id: string }, {}, FeedCommentInput>, res: Response) {
+  async update(req: Request<{ id: string; feed: string }, {}, FeedCommentInput>, res: Response) {
     try {
-      const comment = await FeedComment.findByIdAndUpdate(req.params.id, req.body, { new: true }).lean()
+      const comment = await FeedComment.findOneAndUpdate(
+        { _id: req.params.id, user: req.user!.id, feed: req.params.feed },
+        { content: req.body.content },
+        { returnDocument: 'after', runValidators: true }
+      ).lean()
 
       if (!comment) {
         return res.status(404).json({ message: "Comment not found" })
@@ -87,13 +94,14 @@ class Controller {
 
       return res.json(comment)
     } catch (error) {
-      return res.status(500).json({ error })
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
     }
   }
 
-  async destroy(req: Request, res: Response) {
+  async destroy(req: Request<{ id: string; feed: string }>, res: Response) {
     try {
-      const comment = await FeedComment.findByIdAndDelete(req.params.id).lean()
+      const comment = await FeedComment.findOneAndDelete({ _id: req.params.id, user: req.user!.id, feed: req.params.feed }).lean()
 
       if (!comment) {
         return res.status(404).json({ message: "Comment not found" })
@@ -101,7 +109,8 @@ class Controller {
 
       return res.json(comment)
     } catch (error) {
-      return res.status(500).json({ error })
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
     }
   }
 }

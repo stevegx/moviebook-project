@@ -3,7 +3,48 @@ info:
   title: MovieBook API Documentation
   version: 1.0.0
 
+servers:
+  - url: /api
+
 paths:
+  /health:
+    get:
+      summary: Check API and MongoDB readiness
+      responses:
+        '200':
+          description: Ready
+        '503':
+          description: Database unavailable
+
+  /movies/{movie_id}/trailer:
+    get:
+      summary: Get an official YouTube trailer
+      parameters:
+        - name: movie_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Trailer metadata or null when unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                required: [key, name]
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+        '400':
+          description: Invalid movie ID
+        '502':
+          description: TMDB request failed
+
   /auth/login:
     post:
       summary: Log in a user
@@ -52,14 +93,14 @@ paths:
                 - password
                 - password_confirmation
       responses:
-        '201':
+        '200':
           description: User created
   
   /auth/logout:
     post:
       summary: Log out the current user
       responses:
-        '204':
+        '200':
           description: Logged out successfully
   
   /user:
@@ -110,13 +151,14 @@ paths:
           application/json:
             schema:
               type: object
+              required: [current_password, password, password_confirmation]
               properties:
+                current_password:
+                  type: string
                 password:
                   type: string
-                  required: true
                 password_confirmation:
                   type: string
-                  required: true
       responses:
         '200':
           description: User password updated

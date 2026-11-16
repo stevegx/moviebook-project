@@ -24,21 +24,25 @@ interface CrewMember {
 export default function MoviePage() {
   const { id } = useParams();
   const [movie, setMovie] = useState<any | null>(null);
+  const [failedMovieId, setFailedMovieId] = useState<string>();
   const [castData, setCastData] = useState<CastMember[]>([]);
   const [crewData, setCrewData] = useState<CrewMember | null>();
   const [comments, setComments] = useState<any | null>();
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function getMovie(movieId: string | undefined) {
       if (!movieId) return;
 
       try {
-        const response = await fetch(`${API_URL}/movies/${movieId}`);
+        const response = await fetch(`${API_URL}/movies/${movieId}`, { signal: controller.signal });
         if (!response.ok) throw new Error("Failed");
         const data = await response.json();
         setMovie(data);
+        setFailedMovieId(undefined);
       } catch (error) {
-        console.error("Failed:", error);
+        if (!controller.signal.aborted) setFailedMovieId(movieId);
       }
     }
 
@@ -46,12 +50,16 @@ export default function MoviePage() {
       if (!id) return;
 
       try {
-        const response = await fetch(`${API_URL}/movies/${id}/credits`);
+        const response = await fetch(`${API_URL}/movies/${id}/credits`, { signal: controller.signal });
+        if (!response.ok) throw new Error("Unable to load credits");
         const data = await response.json();
         setCastData(data.cast?.slice(0, 12) || []);
         setCrewData(data.crew?.[0] || null);
       } catch (error) {
-        throw new Error();
+        if (!controller.signal.aborted) {
+          setCastData([]);
+          setCrewData(null);
+        }
       }
     }
 
@@ -61,6 +69,7 @@ export default function MoviePage() {
       try {
         const response = await fetch(`${API_URL}/movies/${id}/comments`, {
           credentials: "include",
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -70,23 +79,27 @@ export default function MoviePage() {
         const data = await response.json();
         setComments(data);
       } catch (error) {
-        console.error("Failed to fetch comments:", error);
+        if (!controller.signal.aborted) setComments(null);
       }
     }
 
     getCredits();
     getMovie(id);
-    getComments(id)
+    getComments(id);
+    return () => controller.abort();
   }, [id]);
 
-  if (!movie) {
-    return <div className="p-8 text-white">Loading Movie...</div>;
+  if (failedMovieId && failedMovieId === id) {
+    return <p className="page-shell text-movie-text-sec" role="alert">Could not load this movie. Try again later.</p>;
+  }
+  if (!movie || String(movie.id) !== id) {
+    return <p className="page-shell text-movie-text-sec" role="status">Loading movie…</p>;
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="page-shell space-y-8">
       <section
-        className="flex flex-col px-20 md:flex-row gap-8 p-8 bg-movie-surface/60 text-white rounded-lg bg-cover bg-center"
+        className="surface-panel flex flex-col items-start gap-5 bg-cover bg-center p-5 sm:flex-row sm:items-center sm:gap-8 sm:p-8"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`,
         }}
@@ -94,41 +107,41 @@ export default function MoviePage() {
         <img
           src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
           alt={movie.original_title}
-          className="w-64 h-96 object-cover rounded-lg shadow-xl"
+          className="aspect-2/3 w-28 shrink-0 rounded-xl object-cover shadow-xl sm:w-40 md:w-52"
         />
         <div className="flex flex-col justify-center gap-4">
-          <h1 className="text-4xl font-bold">
+          <h1 className="page-title">
             {movie.original_title}
-            <span className="text-2xl text-gray-400 font-normal ml-2">
+            <span className="ml-2 text-lg font-normal text-movie-text-sec sm:text-2xl">
               ({new Date(movie.release_date).getFullYear()})
             </span>
           </h1>
 
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-movie-text-sec">
             <span>{Math.floor(movie.runtime / 60)}h {movie.runtime % 60}min</span>
             <span className="w-1 h-1 rounded-full bg-gray-500"></span>
             <span>{movie.genres.map((genre: any) => genre.name).join(", ")}</span>
             <span className="w-1 h-1 rounded-full bg-gray-500"></span>
-            <span className="font-bold text-yellow-500">{movie.vote_average.toFixed(1)} ⭐</span>
+            <span className="font-semibold text-movie-highlight">{movie.vote_average.toFixed(1)} ⭐</span>
           </div>
           <div className="mt-3">
             <Link
               to={`/watchmovie/${id}`}
-              className="bg-movie-highlight/90 font-bold text-movie-text-main p-2 rounded-lg cursor-pointer hover:bg-movie-highlight/80 active:bg-movie-highlight/60 inline-block"
+              className="button-primary"
             >
-              Watch movie
+              Watch trailer
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="max-w-6xl my-10 mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-white">
-        <div className="md:col-span-2">
-          <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Summary</h2>
-          <p className="text-gray-300 leading-relaxed text-lg">{movie.overview}</p>
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
+        <div className="surface-panel space-y-4 p-5 sm:p-6 md:col-span-2">
+          <h2 className="section-title mb-4 border-b border-movie-border pb-2">Summary</h2>
+          <p className="leading-relaxed text-movie-text-sec">{movie.overview}</p>
           
           <div>
-            <h2 className="text-2xl mt-5 font-bold border-b border-gray-700 pb-2">Cast & Crew</h2>
+            <h2 className="section-title mt-5 border-b border-movie-border pb-2">Cast & Crew</h2>
             <h3 className="text-xl mt-2 font-bold text-movie-accent">Top Cast:</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
@@ -144,10 +157,10 @@ export default function MoviePage() {
                         : "https://placehold.co/185x278/1a1a1a/ffffff?text=No+Image"
                     }
                     alt={cast.name}
-                    className="w-20 h-22 rounded-3xl object-cover shadow-md"
+                    className="size-14 rounded-lg object-cover"
                   />
 
-                  <div className="flex flex-col">
+                  <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="text-white font-semibold text-base">{cast.name}</span>
                     <span className="text-neutral-400 text-sm">{cast.character}</span>
                   </div>
@@ -157,9 +170,9 @@ export default function MoviePage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="surface-panel flex flex-col gap-6 p-5 sm:p-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Information</h2>
+            <h2 className="section-title mb-4 border-b border-movie-border pb-2">Information</h2>
             <div className="flex flex-col gap-3">
               <h3>
                 <span className="text-gray-400 font-semibold">Status: </span>
@@ -185,13 +198,13 @@ export default function MoviePage() {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Production</h2>
+            <h2 className="section-title mb-4 border-b border-movie-border pb-2">Production</h2>
             <p className="text-gray-300 text-sm">
               {movie.production_companies.map((company: any) => company.name).join(", ")}
             </p>
           </div>
           <div>
-            <h2 className="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">
+            <h2 className="section-title mb-4 border-b border-movie-border pb-2">
               Director
             </h2>
             
@@ -206,10 +219,10 @@ export default function MoviePage() {
                     : "https://placehold.co/185x278/1a1a1a/ffffff?text=No+Image"
                 }
                 alt={crewData?.name}
-                className="w-16 h-18 rounded-3xl object-cover shadow-md"
+                className="size-14 rounded-lg object-cover"
               />
               
-              <div className="flex flex-col">
+              <div className="min-w-0">
                 <span className="text-white font-semibold text-base">
                   {crewData?.name}
                 </span>
@@ -219,7 +232,7 @@ export default function MoviePage() {
         </div>
       </section>
 
-      <MovieComments id={id} data={comments} />
+      <MovieComments key={id} id={id} data={comments} />
 
       <MovieGallery
         category="popular"

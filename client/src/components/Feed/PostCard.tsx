@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import ProfPic from "@/assets/ProfPic.png";
-import MoviePosterFallback from "@/assets/MoviePoster3.jpg";
+import ProfPic from "@/Assets/ProfPic.png";
+import MoviePosterFallback from "@/Assets/MoviePoster3.jpg";
 import CommentDialog from "./CommentDialog";
 import { useAuth } from "../providers/AuthContext";
 import { Link } from "react-router-dom";
@@ -36,6 +36,7 @@ export default function PostCard({ review }: PostCardProps) {
   const [likeCount, setLikeCount] = useState<number>(0);
   const [userLikeId, setUserLikeId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [expandedReview, setExpandedReview] = useState(false);
 
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [movieLoading, setMovieLoading] = useState<boolean>(true);
@@ -159,8 +160,8 @@ export default function PostCard({ review }: PostCardProps) {
   );
 
   return (
-    <section className="flex flex-col gap-4 bg-movie-surface/40 p-5 rounded-xl border border-movie-border/60 max-w-2xl w-full">
-      <div className="flex justify-between items-center w-full bg-movie-bg/60 p-3 rounded-xl">
+    <section className="surface-panel flex min-w-0 flex-col gap-4 p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-movie-input p-3">
         <div className="flex items-center gap-3">
           <img
             src={ProfPic}
@@ -168,10 +169,8 @@ export default function PostCard({ review }: PostCardProps) {
             className="w-10 h-10 border border-movie-accent/40 rounded-full object-cover shrink-0"
           />
           <h2 className="text-sm md:text-base font-medium text-movie-text-sec">
-            <div className="text-white font-semibold hover:text-movie-accent cursor-pointer transition-colors duration-200 inline-block">
-              @{displayUsername}
-            </div>{" "}
-            reviewed
+            <span className="font-semibold text-movie-text-main">@{displayUsername}</span>
+            {" reviewed "}
             <Link
               to={`/movies/${review?.movie_id}`}
               className="text-movie-accent font-bold italic hover:underline cursor-pointer inline-block"
@@ -207,13 +206,19 @@ export default function PostCard({ review }: PostCardProps) {
             <span className="text-xs ml-1 text-white">{currentRating}/5</span>
           </div>
 
-          <p className="text-sm md:text-base text-movie-text-sec italic leading-relaxed line-clamp-4">
+          <p className={`break-words text-sm italic leading-relaxed text-movie-text-sec md:text-base ${expandedReview ? "" : "line-clamp-4"}`}>
             "{displayReviewText}"
           </p>
 
-          <button className="hover:underline cursor-pointer text-movie-accent text-xs font-medium w-fit mt-1">
-            Read More
-          </button>
+          {displayReviewText.length > 100 && (
+            <button
+              className="text-link w-fit rounded text-sm"
+              aria-expanded={expandedReview}
+              onClick={() => setExpandedReview(!expandedReview)}
+            >
+              {expandedReview ? "Show less" : "Read more"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -231,7 +236,8 @@ export default function PostCard({ review }: PostCardProps) {
       <div className="flex items-center gap-3 w-full pt-4 border-t border-movie-border/20">
         <button
           onClick={handleLikeToggle}
-          className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg border text-sm font-medium transition-all duration-200 cursor-pointer w-24
+          aria-pressed={!!userLikeId}
+          className={`button-secondary
           ${
             userLikeId
               ? "bg-movie-accent/10 border-movie-accent/50 text-movie-accent"
@@ -244,7 +250,7 @@ export default function PostCard({ review }: PostCardProps) {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg border border-movie-border/40 text-sm font-medium text-movie-text-sec hover:text-white hover:border-movie-text-sec transition-all duration-200 cursor-pointer w-28"
+          className="button-secondary"
         >
           <span>💬</span>
           Comment

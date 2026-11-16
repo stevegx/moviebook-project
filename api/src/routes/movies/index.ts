@@ -1,13 +1,14 @@
 import { Router } from 'express'
-import { Movie, Comment } from './controllers'
-import { auth, validator } from '@/middlewares'
-import schema from './schema'
+import { Movie, Comment } from './controllers/index.js'
+import { auth, validator } from '../../middlewares/index.js'
+import schema from './schema.js'
 
 const router: Router = Router()
 
 router.get('/search', Movie.search)
 router.get('/list', Movie.list)
 router.get('/:id/credits', Movie.credits)
+router.get('/:id/trailer', Movie.trailer)
 router.get('/:id', Movie.detail)
 
 router.get('/:movie/comments', auth, Comment.index)

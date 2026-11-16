@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import ProfPic from "@/assets/ProfPic.png";
+import ProfPic from "@/Assets/ProfPic.png";
 import { API_URL } from "@/config";
 
 interface ReviewDialogProps {
@@ -147,7 +147,7 @@ export default function ReviewDialog({
                   setShowDropdown(true);
                 }}
                 onFocus={() => setShowDropdown(true)}
-                className="w-full bg-movie-surface/40 border border-movie-border/80 rounded-md px-3 py-2 text-sm text-white placeholder-movie-text-sec/40 focus:outline-none focus:ring-2 focus:ring-movie-accent/50 focus:border-movie-accent transition-all"
+                className="input-control"
               />
               {showDropdown && movieSearch && movie.length > 0 && (
                 <ul className="absolute left-0 right-0 top-11 bg-movie-bg border border-movie-border/80 rounded-md shadow-xl z-50 max-h-40 overflow-y-auto p-1">
@@ -196,7 +196,7 @@ export default function ReviewDialog({
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
-                  className="text-lg cursor-pointer transition-transform hover:scale-110 focus:outline-none"
+                  className="grid size-11 place-items-center rounded text-lg transition-colors hover:text-movie-highlight"
                 >
                   <span
                     className={
@@ -223,21 +223,21 @@ export default function ReviewDialog({
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
               rows={4}
-              className="w-full bg-movie-surface/40 border border-movie-border/80 rounded-md p-3 text-sm text-white placeholder-movie-text-sec/40 focus:outline-none focus:ring-2 focus:ring-movie-accent/50 focus:border-movie-accent resize-none transition-all leading-relaxed"
+              className="input-control resize-y"
             />
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full pt-4 mt-2">
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto inline-flex justify-center items-center rounded-md border border-movie-border/80 bg-transparent px-4 py-2 text-sm font-medium text-movie-text-sec hover:bg-movie-surface hover:text-white transition-colors cursor-pointer"
+              className="button-secondary w-full sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!selectedMovie || rating === 0 || !reviewText.trim()}
-              className="w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-movie-accent text-white font-semibold text-sm px-4 py-2 hover:bg-opacity-90 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer shadow-sm active:scale-98"
+              className="button-primary w-full sm:w-auto"
             >
               Post Review
             </button>

@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
-export * as schema from './schema'
+export * as schema from './schema.js'
 
 async function useDatabase() {
   const DATABASE_URL = process.env.DATABASE_URL
@@ -10,12 +10,8 @@ async function useDatabase() {
   }
 
   const connect = async () => {
-    try {
-      await mongoose.connect(DATABASE_URL)
-      console.log('MongoDB connected')
-    } catch (error) {
-      console.error('Error connecting to MongoDB:', error)
-    }
+    await mongoose.connect(DATABASE_URL)
+    console.log('MongoDB connected')
   }
 
   const disconnect = async () => {
@@ -30,6 +26,7 @@ async function useDatabase() {
   return {
     connect,
     disconnect,
+    isConnected: () => mongoose.connection.readyState === 1,
   }
 }
 

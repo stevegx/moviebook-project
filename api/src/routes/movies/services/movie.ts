@@ -1,3 +1,11 @@
+type MovieVideo = {
+  key?: string
+  name?: string
+  site?: string
+  type?: string
+  official?: boolean
+}
+
 class Movie {
   async fetcher(path: string, options: RequestInit | undefined = {}) {
     const THEMOVIEDB_API_URL = process.env.THEMOVIEDB_API_URL
@@ -14,11 +22,13 @@ class Movie {
         accept: 'application/json',
         Authorization: `Bearer ${THEMOVIEDB_ACCESS_TOKEN}`,
       },
+      signal: AbortSignal.timeout(10_000),
       ...options,
     }
 
     try {
       const response = await fetch(url, init)
+      if (!response.ok) throw new Error(`TMDB returned HTTP ${response.status}`)
       const data = await response.json()
 
       return data
@@ -78,6 +88,16 @@ class Movie {
       throw new Error(String(error))
     }
   }
+  async trailer(id: string) {
+    const { results }: { results?: MovieVideo[] } = await this.fetcher(`/movie/${id}/videos?language=en-US`)
+    const trailer = results?.find(({ key, site, type, official }) =>
+      site === 'YouTube' && type === 'Trailer' && official === true &&
+      typeof key === 'string' && /^[A-Za-z0-9_-]{11}$/.test(key)
+    )
+
+    return trailer ? { key: trailer.key, name: trailer.name || 'Official trailer' } : null
+  }
+
   async credits(id: string) {
     if (!id || String(id).trim() === '') {
       throw new Error('Invalid movie id')

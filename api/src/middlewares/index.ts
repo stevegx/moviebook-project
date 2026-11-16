@@ -1,3 +1,3 @@
-export { default as errorHandler } from './errorHandler'
-export { default as validator } from './validator'
-export { default as auth } from './auth'
+export { default as errorHandler } from './errorHandler.js'
+export { default as validator } from './validator.js'
+export { default as auth } from './auth.js'

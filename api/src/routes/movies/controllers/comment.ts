@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from 'express'
-import { MovieComment } from '@/lib/database/schema'
-import type { MovieCommentInput } from '../schema'
+import { MovieComment } from '../../../lib/database/schema.js'
+import type { MovieCommentInput } from '../schema.js'
 
 class Controller {
   async index(req: Request, res: Response) {
     try {
       const page = Math.max(1, parseInt(String(req.query.page || '1'), 10))
       const limit = Math.max(1, parseInt(String(req.query.limit || '10'), 10))
-      const comments = await MovieComment.find({ movie: req.params.movie as string }).populate('user', '-password').lean()
+      const comments = await MovieComment.find({ movie: req.params.movie as string }).populate('user', 'name username').lean()
       
       const buildCommentTree = (comments: any[]): any[] => {
         const commentMap = new Map(comments.map(c => [c._id.toString(), { ...c, replies: [] }]))
@@ -42,7 +42,8 @@ class Controller {
         total_pages: totalPages,
       })
     } catch (error) {
-      return res.status(500).json({ error })
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
     }
   }
 
@@ -63,13 +64,13 @@ class Controller {
   async store(req: Request<{ movie: string }, {}, MovieCommentInput>, res: Response, next: NextFunction) {
     try {
       const comment = await MovieComment.create({
-        user: req.user.id,
+        user: req.user!.id,
         movie: req.params.movie,
         content: req.body.content,
         parent: req.body.parent || null
       })
 
-      const populatedComment = await comment.populate('user', '-password')
+      const populatedComment = await comment.populate('user', 'name username')
 
       return res.status(201).json(populatedComment)
     } catch (error) {
@@ -77,9 +78,13 @@ class Controller {
     }
   }
 
-  async update(req: Request<{ id: string }, {}, MovieCommentInput>, res: Response, next: NextFunction) {
+  async update(req: Request<{ id: string; movie: string }, {}, MovieCommentInput>, res: Response, next: NextFunction) {
     try {
-      const comment = await MovieComment.findByIdAndUpdate(req.params.id, req.body, { new: true }).lean()
+      const comment = await MovieComment.findOneAndUpdate(
+        { _id: req.params.id, user: req.user!.id, movie: req.params.movie },
+        { content: req.body.content },
+        { returnDocument: 'after', runValidators: true }
+      ).lean()
 
       if (!comment) {
         return res.status(404).json({ message: "Comment not found" })
@@ -91,9 +96,9 @@ class Controller {
     }
   }
 
-  async destroy(req: Request, res: Response, next: NextFunction) {
+  async destroy(req: Request<{ id: string; movie: string }>, res: Response, next: NextFunction) {
     try {
-      const comment = await MovieComment.findByIdAndDelete(req.params.id).lean()
+      const comment = await MovieComment.findOneAndDelete({ _id: req.params.id, user: req.user!.id, movie: req.params.movie }).lean()
 
       if (!comment) {
         return res.status(404).json({ message: "Comment not found" })

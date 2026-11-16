@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { API_URL } from "@/config";
 
 interface MovieGalleryProps {
@@ -32,9 +33,10 @@ export default function MovieGallery({
   useEffect(() => {
     async function getMoviesByCategory(cat: string) {
       try {
-        const response = await fetch(`${API_URL}/movies/${cat}?page=1`,);
+        const response = await fetch(`${API_URL}/movies/list?type=${encodeURIComponent(cat)}&page=1`);
+        if (!response.ok) throw new Error("Could not load movies");
         const data = await response.json();
-        setMovies(data.results || data);
+        setMovies(Array.isArray(data.results) ? data.results : []);
       } catch (error) {
         console.error(error);
       }
@@ -61,7 +63,7 @@ export default function MovieGallery({
 
     if (scrollRef.current) scrollRef.current.scrollLeft = scrollLeft - walk;
   };
-  const scrollContainerClasses = `flex gap-4 w-full overflow-x-hidden cursor-grab active:cursor-grabbing select-none ${
+  const scrollContainerClasses = `flex gap-4 w-full overflow-x-auto cursor-grab active:cursor-grabbing select-none ${
     isSidebar ? "snap-x snap-mandatory" : ""
   }`;
 
@@ -70,9 +72,9 @@ export default function MovieGallery({
     : "flex-none";
 
   return (
-    <div className={`max-w-7xl mx-auto p-4 relative group mb-10 ${className}`}>
+    <div className={`relative group min-w-0 ${className}`}>
       {tittle && (
-        <h2 className="text-3xl text-white font-bold mb-6 capitalize">
+        <h2 className="section-title mb-4">
           {tittle}
         </h2>
       )}
@@ -86,7 +88,8 @@ export default function MovieGallery({
               behavior: "smooth",
             });
           }}
-          className="absolute left-0 z-20 bg-black/60 p-2 rounded-full hover:bg-black/90 transition-all opacity-0 group-hover:opacity-100"
+          aria-label="Scroll movies left"
+          className="button-secondary absolute left-1 z-20 p-2"
         >
           <svg
             width="24"
@@ -111,24 +114,21 @@ export default function MovieGallery({
           onMouseMove={handleMouseMove}
         >
           {movies
-            .filter((movieResult) => movieResult.id !== currentMovieId)
+            .filter((movieResult) => String(movieResult.id) !== currentMovieId)
             .map((movie) => (
               <div key={movie.id} className={movieItemClasses}>
-                <div
-                  className="cursor-pointer"
-                  onClick={() => {
-                    if (!isDragging) {
-                      window.location.href = `/movies/${movie.id}`;
-                    }
-                  }}
+                <Link
+                  className="block rounded-xl"
+                  to={`/movies/${movie.id}`}
+                  onClick={(event) => { if (isDragging && event.detail > 0) event.preventDefault(); }}
                 >
                   <img
                     src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                     alt={movie.title}
                     draggable="false"
-                    className="rounded-xl w-40 h-60 object-cover shadow-lg"
+                    className="aspect-2/3 w-36 rounded-xl object-cover sm:w-40"
                   />
-                </div>
+                </Link>
               </div>
             ))}
         </div>
@@ -141,7 +141,8 @@ export default function MovieGallery({
               behavior: "smooth",
             });
           }}
-          className="absolute right-0 z-20 bg-black/60 p-2 rounded-full hover:bg-black/90 transition-all opacity-0 group-hover:opacity-100"
+          aria-label="Scroll movies right"
+          className="button-secondary absolute right-1 z-20 p-2"
         >
           <svg
             width="24"

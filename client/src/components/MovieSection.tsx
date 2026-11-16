@@ -16,8 +16,8 @@ function MovieSection({
   const displayedMovies = movies.slice(0, 8);
   
   return (
-    <section className="mb-12">
-      <div className="flex gap-5 flex-wrap">
+    <section>
+      <div className="movie-grid">
         {displayedMovies.map((movie) => (
           <MovieCard
             key={movie.id}

@@ -1,42 +1,35 @@
-import type { ChangeEvent } from "react";
+import { useId, useState } from "react";
+import type { ComponentPropsWithoutRef } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function FormInput({
-  label,
-  type,
-  value,
-  onChange,
-  placeholder,
-  icon,
-}: {
-  label: string;
-  type: string;
-  value: string;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  placeholder: string;
-  icon?: React.ReactNode;
-}) {
+type Props = ComponentPropsWithoutRef<"input"> & { label: string };
+
+export default function FormInput({ label, type, ...props }: Props) {
+  const id = useId();
+  const [visible, setVisible] = useState(false);
+  const isPassword = type === "password";
+
   return (
-    <div className="mb-3.75">
-      <label className="block mb-2 font-medium">{label}</label>
-      <div className="relative">
-        {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-movie-text-sec">
-            {icon}
-          </div>
-        )}
-
+    <div className="form-label">
+      <label htmlFor={id}>{label}</label>
+      <span className="relative block">
         <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          className={`w-full p-2.5 pr-10 border border-[#b4b4b4] bg-movie-surface text-movie-text-main rounded box-border focus:outline-none placeholder:text-movie-text-sec ${
-            icon ? "pl-10" : "pl-3"
-          }`}
+          {...props}
+          id={id}
+          className={`input-control ${isPassword ? "pr-12" : ""}`}
+          type={isPassword && visible ? "text" : type}
         />
-      </div>
+        {isPassword && (
+          <button
+            type="button"
+            className="absolute inset-y-0 right-0 grid w-11 place-items-center rounded-r-lg text-movie-text-sec hover:text-movie-text-main"
+            aria-label={visible ? "Hide password" : "Show password"}
+            onClick={() => setVisible(!visible)}
+          >
+            {visible ? <FaEyeSlash aria-hidden="true" /> : <FaEye aria-hidden="true" />}
+          </button>
+        )}
+      </span>
     </div>
   );
 }
-
-export default FormInput;
